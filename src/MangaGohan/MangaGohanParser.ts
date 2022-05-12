@@ -13,6 +13,17 @@ import {
   Tag,
 } from 'paperback-extensions-common'
 
+// export class Parser {
+//   parseMangaDetails($:CheerioStatic, mangaId: string): Manga {
+//     const title = [$('.post-title').find('h1').first().text().split(' ')[0]!] ?? ''
+//     const image = $('.summary_image').find('img').attr('data-src') ?? 'https://i.imgur.com/GYUxEX8.png'
+//     const rating = Number($('.score.font-meta.total_votes').text()) ?? 0
+
+
+//   }
+// }
+
+
 export const parseMangaDetails = ($: CheerioStatic, mangaId: string): Manga => {
   const titles: string[] = [$('.post-title').find('h1').first().text().split(' ')[0]!]
   const image = $('.summary_image').find('img').attr('data-src')
