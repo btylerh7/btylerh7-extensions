@@ -28,7 +28,7 @@ import {
   parseTags,
 } from './MangaGohanParser'
 
-export const MG_DOMAIN = 'https://mangagohan.com'
+export const MG_DOMAIN = 'https://mangagohan.me'
 const headers = {
   'content-type': 'application/x-www-form-urlencoded',
   Referer: MG_DOMAIN,
@@ -36,7 +36,7 @@ const headers = {
 const method = 'GET'
 
 export const MangaGohanInfo: SourceInfo = {
-  version: '0.5',
+  version: '0.5.1',
   name: 'Manga Gohan',
   icon: 'logo.png',
   author: 'btylerh7',
