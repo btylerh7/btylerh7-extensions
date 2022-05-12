@@ -1,9 +1,9 @@
 {
   "name": "manga1000",
   "version": "1.0.0",
-  "description": "Manga1000 extension by btylerh7",
+  "description": "Japanese Language Sources extension by btylerh7",
   "main": "index.js",
-  "baseURL": "https://btylerh7.github.io/extensions-sources",
+  "baseURL": "https://btylerh7.github.io/btylerh7-japanese-extensions",
   "scripts": {
     "bundle": "paperback bundle",
     "serve": "paperback serve",
@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/btylerh7/extensions-sources.git"
+    "url": "git+https://github.com/btylerh7/btylerh7-japanese-extensions.git"
   },
   "author": "btylerh7",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/btylerh7/extensions-sources/issues"
+    "url": "https://github.com/btylerh7/btylerh7-japanese-extensions/issues"
   },
-  "homepage": "https://github.com/btylerh7/extensions-sources",
+  "homepage": "https://github.com/btylerh7/btylerh7-japanese-extensions",
   "devDependencies": {
     "@types/chai": "^4.3.0",
     "@types/chai-as-promised": "^7.1.4",
