@@ -64,6 +64,7 @@ export class MangaGohan extends Source {
     return createRequestObject({
       url: `${MG_DOMAIN}`,
       method,
+      headers
     })
   }
   requestManager = createRequestManager({
