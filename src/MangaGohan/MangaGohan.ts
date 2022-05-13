@@ -31,7 +31,7 @@ import {
 export const MG_DOMAIN = 'https://mangagohan.me'
 const headers = {
   'content-type': 'application/x-www-form-urlencoded',
-  Referer: MG_DOMAIN,
+  Referer: 'https://mangagohan.me/',
 }
 const method = 'GET'
 
@@ -98,7 +98,7 @@ export class MangaGohan extends Source {
   }
   async getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDetails> {
     const request = createRequestObject({
-      url: encodeURI(`${MG_DOMAIN}/manga/${mangaId}/${chapterId}`),
+      url: `${MG_DOMAIN}/manga/${mangaId}/${chapterId}`,
       method,
       headers,
     })

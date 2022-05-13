@@ -70,7 +70,7 @@ export const parseChapters = ($: CheerioStatic, mangaId: string): Chapter[] => {
   const chapterLinks = $('.page-content-listing.single-page').find('li')
 
   for (let href of chapterLinks.toArray()) {
-    const id = $('a', href).text().trim()
+    const id = decodeURI($('a', href).text().trim())
     const chapNum = $('a', href).text().replace(/第|話/g, '')
     chapters.push(
       createChapter({
@@ -85,16 +85,14 @@ export const parseChapters = ($: CheerioStatic, mangaId: string): Chapter[] => {
   return chapters
 }
 
-export const parseChapterDetails = (
-  $: CheerioStatic,
-  mangaId: string,
-  chapterId: string
-): ChapterDetails => {
+export const parseChapterDetails = ($: CheerioStatic, mangaId: string, chapterId: string): ChapterDetails => {
   const pages: string[] = []
   const links = $('.reading-content').find('img')
 
   for (const img of links.toArray()) {
-    let page = img!.attribs!['data-src'] ? img!.attribs!['data-src'].trim() : img!.attribs!.src!
+    const page = img.attribs.src
+    // img.attribs['data-src']?.trim() ?? 
+    if (!page) continue
     pages.push(page)
   }
   return createChapterDetails({
@@ -220,10 +218,7 @@ export const parseHomeSections = (
   sectionCallback(topSection)
   topSection.items = top
 
-  for (let recentlyUpdatedManga of $('.main-col-inner.c-page')
-    .next()
-    .find('.page-item-detail.manga')
-    .toArray()) {
+  for (let recentlyUpdatedManga of $('.main-col-inner.c-page').next().find('.page-item-detail.manga').toArray()) {
     const mangaId = $(recentlyUpdatedManga).find('a').first().attr('href')!.split('/manga/')[1]
     const title = $(recentlyUpdatedManga).find('h3 > a').first().text().split(' ')[0]
     const image = $(recentlyUpdatedManga).find('img').first().attr('data-src')
