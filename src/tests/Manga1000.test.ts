@@ -1,6 +1,6 @@
 import cheerio from 'cheerio'
 import { APIWrapper, SearchRequest, Source } from 'paperback-extensions-common'
-import { Manga1000 } from '../Manga1000/Manga1000'
+import { Manga1000 } from '../Manga1000_v2/manga1000'
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 
@@ -15,7 +15,7 @@ describe('Manga1000 Tests', () => {
    * Try to choose a manga which is updated frequently, so that the historical checking test can
    * return proper results, as it is limited to searching 30 days back due to extremely long processing times otherwise.
    */
-  const mangaId = '彼女、お借りします-free-raw1' // Rent-a-Girlfriend
+  const mangaId = '1489' // Attack on Titan
 
   it('Retrieve Manga Details', async () => {
     const details = await wrapper.getMangaDetails(source, mangaId)
@@ -58,9 +58,9 @@ describe('Manga1000 Tests', () => {
 
   it('Testing search', async () => {
     const testSearch: SearchRequest = {
-      // title: '彼女',
+      title: 'titan',
       parameters: {
-        includedTags: ['sf・ファンタジー'],
+        // includedTags: ['sf・ファンタジー'],
       },
     }
 
@@ -76,20 +76,20 @@ describe('Manga1000 Tests', () => {
     expect(result?.subtitleText, 'No subtitle text').to.be.not.null
   })
 
-  it('Testing Home-Page aquisition', async () => {
-    const homePages = await wrapper.getHomePageSections(source)
-    expect(homePages, 'No response from server').to.exist
-    expect(homePages[0]?.items, 'No items present').to.exist
-    // console.log('latest:', homePages![0]!.items)
-    // console.log('top:', homePages![1]!.items)
-  })
-  it('Get tags', async () => {
-    const tags = await wrapper.getTags(source)
-    const taglist = tags![0]?.tags!
-    console.log(taglist)
-    expect(tags, 'No server response').to.exist
-    expect(tags, 'Empty server response').to.not.be.empty
-  })
+  // it('Testing Home-Page aquisition', async () => {
+  //   const homePages = await wrapper.getHomePageSections(source)
+  //   expect(homePages, 'No response from server').to.exist
+  //   expect(homePages[0]?.items, 'No items present').to.exist
+  //   // console.log('latest:', homePages![0]!.items)
+  //   // console.log('top:', homePages![1]!.items)
+  // })
+  // it('Get tags', async () => {
+  //   const tags = await wrapper.getTags(source)
+  //   const taglist = tags![0]?.tags!
+  //   console.log(taglist)
+  //   expect(tags, 'No server response').to.exist
+  //   expect(tags, 'Empty server response').to.not.be.empty
+  // })
   // it('Testing Notifications', async () => {
   //   const updates = await wrapper.filterUpdatedManga(
   //     source,
