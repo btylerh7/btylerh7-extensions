@@ -25,7 +25,7 @@ import {
 
 
 export const parseMangaDetails = ($: CheerioStatic, mangaId: string): Manga => {
-  const titles: string[] = [$('.post-title').find('h1').first().text().split(' ')[0]!]
+  const titles= [$('.post-title').find('h1').first().text().replace(/(Raw - Free)/g, '').trim() ?? '']
   const image = $('.summary_image').find('img').attr('data-src')
   let status = MangaStatus.UNKNOWN //All manga is listed as ongoing
   const author = $('.author-content').find('a').first().text()
@@ -70,8 +70,9 @@ export const parseChapters = ($: CheerioStatic, mangaId: string): Chapter[] => {
   const chapterLinks = $('.page-content-listing.single-page').find('li')
 
   for (let href of chapterLinks.toArray()) {
-    const id = $('a', href).text().trim()
-    const chapNum = $('a', href).text().replace(/第|話/g, '')
+    // const id = $('a', href).text()
+    const chapNum = $('a', href).text().replace(/第|話/g, '').trim()
+    const id = `第${chapNum}話`
     chapters.push(
       createChapter({
         id,
@@ -85,16 +86,14 @@ export const parseChapters = ($: CheerioStatic, mangaId: string): Chapter[] => {
   return chapters
 }
 
-export const parseChapterDetails = (
-  $: CheerioStatic,
-  mangaId: string,
-  chapterId: string
-): ChapterDetails => {
+export const parseChapterDetails = ($: CheerioStatic, mangaId: string, chapterId: string): ChapterDetails => {
   const pages: string[] = []
   const links = $('.reading-content').find('img')
 
   for (const img of links.toArray()) {
-    let page = img!.attribs!['data-src'] ? img!.attribs!['data-src'].trim() : img!.attribs!.src!
+    const page = img.attribs['data-src']?.trim()
+    // img.attribs['data-src']?.trim() ?? 
+    if (!page) continue
     pages.push(page)
   }
   return createChapterDetails({
@@ -116,7 +115,7 @@ export const parseSearchRequest = ($: CheerioStatic, type: string): MangaTile[] 
   for (let result of results.toArray()) {
     // const id = article.attribs.class[0].split('-')[1]
     const mangaId = $(result).find('.h4').find('a').first().attr('href')?.split('manga/')[1] ?? ''
-    const image = $(result).find('img')?.first().attr('data-src') ?? ''
+    const image = $(result).find('img').first().attr('data-srcset') ?? ''
     const title = $(result).find('.h4').first().text().split(' ')[0] ?? ''
 
     tiles.push(
@@ -153,28 +152,11 @@ export const parseSearchRequest = ($: CheerioStatic, type: string): MangaTile[] 
   return tiles
 }
 
-export const parseHomeSections = (
-  $: CheerioStatic,
-  sectionCallback: (section: HomeSection) => void
-): void => {
-  const featuredSection = createHomeSection({
-    id: '0',
-    title: 'Featured',
-    type: HomeSectionType.featured,
-    view_more: false,
-  })
-  const topSection = createHomeSection({
-    id: '1',
-    title: 'Top Manga',
-    type: HomeSectionType.singleRowNormal,
-    view_more: false,
-  })
-  const recentlyUpdatedSection = createHomeSection({
-    id: '2',
-    title: 'Reccently Updated',
-    type: HomeSectionType.singleRowNormal,
-    view_more: false,
-  })
+export const parseHomeSections = ($: CheerioStatic, sectionCallback: (section: HomeSection) => void): void => {
+  
+  const featuredSection = createHomeSection({id: '0', title: 'Featured', type: HomeSectionType.featured, view_more: false,})
+  const topSection = createHomeSection({id: '1', title: 'Top Manga', type: HomeSectionType.singleRowNormal, view_more: false,})
+  const recentlyUpdatedSection = createHomeSection({id: '2', title: 'Reccently Updated', type: HomeSectionType.singleRowNormal, view_more: false,})
 
   const featured = []
   const top = []
@@ -182,30 +164,26 @@ export const parseHomeSections = (
 
   //Retrieve Featured Manga Section
 
-  for (let featuredManga of $('.c-sidebar.c-top-sidebar').find('.slider__item').toArray()) {
-    const mangaId = $(featuredManga).find('a').first().attr('href')!.split('/manga/')[1]
-    const title = $(featuredManga).find('a').first().text().trim()
-    const image = $(featuredManga).find('img').first().attr('data-src')
+  for (let featuredManga of $('.popular-slider.style-1').find('.slider__item').toArray()) {
+    const mangaId = $('.slider__content', featuredManga).find('a').first().attr('href')?.split('/manga/')[1] ?? ''
+    const title = $('h4', featuredManga).find('a').first().text().replace(/(Raw - Free)/g, '').trim() ?? ''
+    const image = $('.slider__thumb', featuredManga).find('img').first().attr('data-src')
 
     featured.push(
       createMangaTile({
         id: mangaId!,
         image: image ?? 'https://i.imgur.com/GYUxEX8.png',
-        title: createIconText({
-          text: title,
-        }),
+        title: createIconText({text: title,}),
       })
     )
   }
   sectionCallback(featuredSection)
   featuredSection.items = featured
 
-  for (let topManga of $('.main-sticky-mangas.main-col-inner.c-page')
-    .find('.page-item-detail.manga')
-    .toArray()) {
-    const mangaId = $(topManga).find('a').first().attr('href')!.split('/manga/')[1]
+  for (let topManga of $('.main-col-inner.c-page').first().find('.page-item-detail.manga').toArray()) {
+    const mangaId = $('a', topManga).first().attr('href')!.split('/manga/')[1]
     const title = $(topManga).find('h3 > a').first().text().split(' ')[0]
-    const image = $(topManga).find('img').first().attr('data-src') ?? $(topManga).find('img').first().attr('src')  
+    const image = $('a', topManga).first().find('img').first().attr('data-src') 
 
     top.push(
       createMangaTile({
@@ -220,11 +198,8 @@ export const parseHomeSections = (
   sectionCallback(topSection)
   topSection.items = top
 
-  for (let recentlyUpdatedManga of $('.main-col-inner.c-page')
-    .next()
-    .find('.page-item-detail.manga')
-    .toArray()) {
-    const mangaId = $(recentlyUpdatedManga).find('a').first().attr('href')!.split('/manga/')[1]
+  for (let recentlyUpdatedManga of $('.main-col-inner.c-page').next().find('.page-item-detail.manga').toArray()) {
+    const mangaId = $('a', recentlyUpdatedManga).first().attr('href')!.split('/manga/')[1]
     const title = $(recentlyUpdatedManga).find('h3 > a').first().text().split(' ')[0]
     const image = $(recentlyUpdatedManga).find('img').first().attr('data-src')
 
