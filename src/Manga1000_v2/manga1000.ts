@@ -23,11 +23,10 @@ import {
   import { Parser } from './parser'
 
   export const M1000_DOMAIN = 'https://manga1000.top/'
-//   const headers = {
-//     'content-type': 'application/x-www-form-urlencoded',
-//     Referer: M1000_DOMAIN,
-//   }
-//   const method = 'GET'
+  const headers = {
+    'content-type': 'application/x-www-form-urlencoded',
+    Referer: M1000_DOMAIN,
+  }
   export const MangaGohanInfo: SourceInfo = {
     version: '0.5.1',
     name: 'Manga 1000',
@@ -61,8 +60,9 @@ import {
 
     async getMangaDetails(mangaId: string): Promise<Manga> {
         const request = createRequestObject({
-            url: `${M1000_DOMAIN}/${mangaId}`,
+            url: `${M1000_DOMAIN}/${mangaId}/`,
             method: 'GET',
+            headers
         })
 
         const response = await this.requestManager.schedule(request, 3)
@@ -73,6 +73,7 @@ import {
         const request = createRequestObject({
             url: `${M1000_DOMAIN}/${mangaId}`,
             method: 'GET',
+            headers
         })
 
         const response = await this.requestManager.schedule(request, 3)
@@ -83,6 +84,7 @@ import {
         const request = createRequestObject({
             url: `${M1000_DOMAIN}/${mangaId}/${chapterId}`,
             method: 'GET',
+            headers
         })
 
         const response = await this.requestManager.schedule(request, 3)
@@ -99,6 +101,7 @@ import {
             url: `${M1000_DOMAIN}/manga-list.html`,
             method: 'GET',
             param,
+            headers
         })
 
         const data = await this.requestManager.schedule(request, 2)

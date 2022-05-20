@@ -1,4 +1,5 @@
 import {
+    Chapter,
     LanguageCode,
     // Chapter,
     // ChapterDetails,
@@ -15,12 +16,13 @@ import {
     // Tag,
   } from 'paperback-extensions-common'
 
+const entities = require('entities')
 export class Parser {
     parseMangaDetails($:CheerioStatic, mangaId: string): Manga {
         const titles = []
-        const title = $('.manga-info').find('h3').first().text()
+        const title = $('.manga-info h3').first().text()
         titles.push(title)
-        const desc = $('.summary-content').next().text()
+        const desc = $('.summary-content').find('p').text()
         const image = $('.thumbnail').attr('src')
         const rating = 0
         const status = MangaStatus.ONGOING
@@ -48,6 +50,25 @@ export class Parser {
         }
         return author
     }
+    
+    async parseChapters($:CheerioStatic, mangaId:string): Promise<Chapter[]> {
+        const chapters: Chapter[] = []
+        const chapterList = $('')
+        for (const chapter of chapterList.toArray()){
+            const id = chapter.attribs['href']?.split(`/`)[3]
+            const chapNum = Number(chapter.attribs['title']?.split(' ')[1])
+            chapters.push(
+                createChapter({
+                    id: id ?? '',
+                    mangaId,
+                    chapNum,
+                    langCode: LanguageCode.JAPANESE
+                })
+            )
+        }
+        
+        return chapters
+    }
     async parseChapterDetails($:CheerioStatic, mangaId:string, id: string) {
         const pages: string[] = []
         const chapterImages = $('.chapter-content img').toArray()
@@ -62,25 +83,6 @@ export class Parser {
             pages,
             longStrip: false,
           })
-    }
-    async parseChapters($:CheerioStatic, mangaId:string) {
-        const chapters = []
-        const chapterList = $('.list-chapters.at-series').find('a')
-        for (const chapter of chapterList.toArray()){
-            const id = chapter.attribs['href']?.split(`${mangaId}/`)[1]
-            const chapNum = Number(chapter.attribs['title']?.split(' ')[1])
-            chapters.push(
-                createChapter({
-                    id: id ?? '',
-                    mangaId,
-                    chapNum,
-                    langCode: LanguageCode.JAPANESE
-                })
-            )
-            
-        }
-        
-        return chapters
     }
     async parseSearchResults($:CheerioStatic): Promise<MangaTile[]>{
         const results: MangaTile[] = []
