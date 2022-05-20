@@ -12,8 +12,8 @@ import {
   SearchRequest,
   // Section,
   Source,
-  // Request,
-  // Response,
+  Request,
+  Response,
   SourceInfo,
   // RequestHeaders,
   TagType,
@@ -29,9 +29,12 @@ import {
 } from './MangaGohanParser'
 
 export const MG_DOMAIN = 'https://mangagohan.me'
+const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
+
 const headers = {
   'content-type': 'application/x-www-form-urlencoded',
-  Referer: 'https://mangagohan.me/',
+  Referer: 'https://mangagohan.me/?__cf_chl_tk=Vdie6FXxTJZv3.cpvMsRffoLHmwttqIvYSyp79VoXQI-1653012153-0-gaNycGzNCqU',
+  'user-agent': userAgent
 }
 const method = 'GET'
 
@@ -64,12 +67,30 @@ export class MangaGohan extends Source {
     return createRequestObject({
       url: `${MG_DOMAIN}`,
       method,
-      headers
+      headers,
     })
   }
   requestManager = createRequestManager({
     requestsPerSecond: 4,
     requestTimeout: 15000,
+    interceptor: {
+      interceptRequest: async (request: Request): Promise<Request> => {
+
+          request.headers = {
+              ...(request.headers ?? {}),
+              ...{
+                  'user-agent': userAgent,
+                  'referer': `${MG_DOMAIN}/`
+              }
+          }
+
+          return request
+      },
+
+      interceptResponse: async (response: Response): Promise<Response> => {
+          return response
+      }
+  }
   })
   override getMangaShareUrl(mangaId: string): string {
     return `${MG_DOMAIN}/manga/${mangaId}`
@@ -98,7 +119,7 @@ export class MangaGohan extends Source {
   }
   async getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDetails> {
     const request = createRequestObject({
-      url: `${MG_DOMAIN}/manga/${mangaId}/${chapterId}`,
+      url: encodeURI(`${MG_DOMAIN}/manga/${mangaId}/${chapterId}/`),
       method,
       headers,
     })
@@ -137,9 +158,7 @@ export class MangaGohan extends Source {
       metadata
     })
   }
-  override async getHomePageSections(
-    sectionCallback: (section: HomeSection) => void
-  ): Promise<void> {
+  override async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
     const request = createRequestObject({
       url: MG_DOMAIN,
       method,
