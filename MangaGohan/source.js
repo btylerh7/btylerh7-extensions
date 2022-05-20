@@ -393,9 +393,11 @@ exports.MangaGohan = exports.MangaGohanInfo = exports.MG_DOMAIN = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
 const MangaGohanParser_1 = require("./MangaGohanParser");
 exports.MG_DOMAIN = 'https://mangagohan.me';
+const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
 const headers = {
     'content-type': 'application/x-www-form-urlencoded',
-    Referer: exports.MG_DOMAIN,
+    Referer: 'https://mangagohan.me/?__cf_chl_tk=Vdie6FXxTJZv3.cpvMsRffoLHmwttqIvYSyp79VoXQI-1653012153-0-gaNycGzNCqU',
+    'user-agent': userAgent
 };
 const method = 'GET';
 exports.MangaGohanInfo = {
@@ -427,13 +429,26 @@ class MangaGohan extends paperback_extensions_common_1.Source {
         this.requestManager = createRequestManager({
             requestsPerSecond: 4,
             requestTimeout: 15000,
+            interceptor: {
+                interceptRequest: (request) => __awaiter(this, void 0, void 0, function* () {
+                    var _a;
+                    request.headers = Object.assign(Object.assign({}, ((_a = request.headers) !== null && _a !== void 0 ? _a : {})), {
+                        'user-agent': userAgent,
+                        'referer': `${exports.MG_DOMAIN}/`
+                    });
+                    return request;
+                }),
+                interceptResponse: (response) => __awaiter(this, void 0, void 0, function* () {
+                    return response;
+                })
+            }
         });
     }
     getCloudflareBypassRequest() {
         return createRequestObject({
             url: `${exports.MG_DOMAIN}`,
             method,
-            headers
+            headers,
         });
     }
     getMangaShareUrl(mangaId) {
@@ -466,7 +481,7 @@ class MangaGohan extends paperback_extensions_common_1.Source {
     getChapterDetails(mangaId, chapterId) {
         return __awaiter(this, void 0, void 0, function* () {
             const request = createRequestObject({
-                url: encodeURI(`${exports.MG_DOMAIN}/manga/${mangaId}/${chapterId}`),
+                url: encodeURI(`${exports.MG_DOMAIN}/manga/${mangaId}/${chapterId}/`),
                 method,
                 headers,
             });
@@ -550,8 +565,9 @@ const paperback_extensions_common_1 = require("paperback-extensions-common");
 // }
 const parseMangaDetails = ($, mangaId) => {
     var _a;
-    const titles = [$('.post-title').find('h1').first().text().split(' ')[0]];
+    const titles = [$('.post-title').find('h1').first().text().split(' ')[0].trim()];
     const image = $('.summary_image').find('img').attr('data-src');
+    console.log(image);
     let status = paperback_extensions_common_1.MangaStatus.UNKNOWN; //All manga is listed as ongoing
     const author = $('.author-content').find('a').first().text();
     const artist = $('.artist-content').find('a').first().text();
@@ -597,8 +613,9 @@ const parseChapters = ($, mangaId) => {
     const chapters = [];
     const chapterLinks = $('.page-content-listing.single-page').find('li');
     for (let href of chapterLinks.toArray()) {
-        const id = $('a', href).text().trim();
-        const chapNum = $('a', href).text().replace(/第|話/g, '');
+        // const id = $('a', href).text()
+        const chapNum = $('a', href).text().replace(/第|話/g, '').trim();
+        const id = `第${chapNum}話`;
         chapters.push(createChapter({
             id,
             mangaId,
@@ -610,10 +627,14 @@ const parseChapters = ($, mangaId) => {
 };
 exports.parseChapters = parseChapters;
 const parseChapterDetails = ($, mangaId, chapterId) => {
+    var _a;
     const pages = [];
     const links = $('.reading-content').find('img');
     for (const img of links.toArray()) {
-        let page = img.attribs['data-src'] ? img.attribs['data-src'].trim() : img.attribs.src;
+        const page = (_a = img.attribs['data-src']) === null || _a === void 0 ? void 0 : _a.trim();
+        // img.attribs['data-src']?.trim() ?? 
+        if (!page)
+            continue;
         pages.push(page);
     }
     return createChapterDetails({
@@ -634,7 +655,7 @@ const parseSearchRequest = ($, type) => {
         for (let result of results.toArray()) {
             // const id = article.attribs.class[0].split('-')[1]
             const mangaId = (_b = (_a = $(result).find('.h4').find('a').first().attr('href')) === null || _a === void 0 ? void 0 : _a.split('manga/')[1]) !== null && _b !== void 0 ? _b : '';
-            const image = (_d = (_c = $(result).find('img')) === null || _c === void 0 ? void 0 : _c.first().attr('data-src')) !== null && _d !== void 0 ? _d : '';
+            const image = (_d = (_c = $(result).find('img')) === null || _c === void 0 ? void 0 : _c.first().attr('data-srcset')) !== null && _d !== void 0 ? _d : '';
             const title = (_e = $(result).find('.h4').first().text().split(' ')[0]) !== null && _e !== void 0 ? _e : '';
             tiles.push(createMangaTile({
                 id: mangaId,
@@ -720,10 +741,7 @@ const parseHomeSections = ($, sectionCallback) => {
     }
     sectionCallback(topSection);
     topSection.items = top;
-    for (let recentlyUpdatedManga of $('.main-col-inner.c-page')
-        .next()
-        .find('.page-item-detail.manga')
-        .toArray()) {
+    for (let recentlyUpdatedManga of $('.main-col-inner.c-page').next().find('.page-item-detail.manga').toArray()) {
         const mangaId = $(recentlyUpdatedManga).find('a').first().attr('href').split('/manga/')[1];
         const title = $(recentlyUpdatedManga).find('h3 > a').first().text().split(' ')[0];
         const image = $(recentlyUpdatedManga).find('img').first().attr('data-src');
