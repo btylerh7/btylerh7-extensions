@@ -564,10 +564,9 @@ const paperback_extensions_common_1 = require("paperback-extensions-common");
 //   }
 // }
 const parseMangaDetails = ($, mangaId) => {
-    var _a;
-    const titles = [$('.post-title').find('h1').first().text().split(' ')[0].trim()];
+    var _a, _b;
+    const titles = [(_a = $('.post-title').find('h1').first().text().replace(/(Raw - Free)/g, '').trim()) !== null && _a !== void 0 ? _a : ''];
     const image = $('.summary_image').find('img').attr('data-src');
-    console.log(image);
     let status = paperback_extensions_common_1.MangaStatus.UNKNOWN; //All manga is listed as ongoing
     const author = $('.author-content').find('a').first().text();
     const artist = $('.artist-content').find('a').first().text();
@@ -581,7 +580,7 @@ const parseMangaDetails = ($, mangaId) => {
         const label = $(link).text().trim();
         if (!id || !label)
             continue;
-        if (!((_a = decodeURI($(link).attr('href').split('com/')[1])) === null || _a === void 0 ? void 0 : _a.startsWith('manga-genre')))
+        if (!((_b = decodeURI($(link).attr('href').split('com/')[1])) === null || _b === void 0 ? void 0 : _b.startsWith('manga-genre')))
             continue;
         if (label === 'manga-genre/hentai/')
             hentai = true;
@@ -646,7 +645,7 @@ const parseChapterDetails = ($, mangaId, chapterId) => {
 };
 exports.parseChapterDetails = parseChapterDetails;
 const parseSearchRequest = ($, type) => {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+    var _a, _b, _c, _d, _e, _f, _g, _h;
     const tiles = [];
     let results;
     //If serch is a title
@@ -655,8 +654,8 @@ const parseSearchRequest = ($, type) => {
         for (let result of results.toArray()) {
             // const id = article.attribs.class[0].split('-')[1]
             const mangaId = (_b = (_a = $(result).find('.h4').find('a').first().attr('href')) === null || _a === void 0 ? void 0 : _a.split('manga/')[1]) !== null && _b !== void 0 ? _b : '';
-            const image = (_d = (_c = $(result).find('img')) === null || _c === void 0 ? void 0 : _c.first().attr('data-srcset')) !== null && _d !== void 0 ? _d : '';
-            const title = (_e = $(result).find('.h4').first().text().split(' ')[0]) !== null && _e !== void 0 ? _e : '';
+            const image = (_c = $(result).find('img').first().attr('data-srcset')) !== null && _c !== void 0 ? _c : '';
+            const title = (_d = $(result).find('.h4').first().text().split(' ')[0]) !== null && _d !== void 0 ? _d : '';
             tiles.push(createMangaTile({
                 id: mangaId,
                 image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
@@ -670,9 +669,9 @@ const parseSearchRequest = ($, type) => {
     if (type === 'tag') {
         results = $('.tab-content-wrap').find('.page-item-detail.manga');
         for (let result of results.toArray()) {
-            const mangaId = (_g = (_f = $('h3.h5', result).find('a').first().attr('href')) === null || _f === void 0 ? void 0 : _f.split('manga/')[1]) !== null && _g !== void 0 ? _g : '';
-            const image = (_h = $(result).find('img').first().attr('data-src')) !== null && _h !== void 0 ? _h : '';
-            const title = (_j = $('h3.h5', result).find('a').first().text().trim()) !== null && _j !== void 0 ? _j : '';
+            const mangaId = (_f = (_e = $('h3.h5', result).find('a').first().attr('href')) === null || _e === void 0 ? void 0 : _e.split('manga/')[1]) !== null && _f !== void 0 ? _f : '';
+            const image = (_g = $(result).find('img').first().attr('data-src')) !== null && _g !== void 0 ? _g : '';
+            const title = (_h = $('h3.h5', result).find('a').first().text().trim()) !== null && _h !== void 0 ? _h : '';
             if (!mangaId || !title)
                 continue;
             tiles.push(createMangaTile({
@@ -688,49 +687,30 @@ const parseSearchRequest = ($, type) => {
 };
 exports.parseSearchRequest = parseSearchRequest;
 const parseHomeSections = ($, sectionCallback) => {
-    var _a;
-    const featuredSection = createHomeSection({
-        id: '0',
-        title: 'Featured',
-        type: paperback_extensions_common_1.HomeSectionType.featured,
-        view_more: false,
-    });
-    const topSection = createHomeSection({
-        id: '1',
-        title: 'Top Manga',
-        type: paperback_extensions_common_1.HomeSectionType.singleRowNormal,
-        view_more: false,
-    });
-    const recentlyUpdatedSection = createHomeSection({
-        id: '2',
-        title: 'Reccently Updated',
-        type: paperback_extensions_common_1.HomeSectionType.singleRowNormal,
-        view_more: false,
-    });
+    var _a, _b, _c;
+    const featuredSection = createHomeSection({ id: '0', title: 'Featured', type: paperback_extensions_common_1.HomeSectionType.featured, view_more: false, });
+    const topSection = createHomeSection({ id: '1', title: 'Top Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
+    const recentlyUpdatedSection = createHomeSection({ id: '2', title: 'Reccently Updated', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
     const featured = [];
     const top = [];
     const recentlyUpdated = [];
     //Retrieve Featured Manga Section
-    for (let featuredManga of $('.c-sidebar.c-top-sidebar').find('.slider__item').toArray()) {
-        const mangaId = $(featuredManga).find('a').first().attr('href').split('/manga/')[1];
-        const title = $(featuredManga).find('a').first().text().trim();
-        const image = $(featuredManga).find('img').first().attr('data-src');
+    for (let featuredManga of $('.popular-slider.style-1').find('.slider__item').toArray()) {
+        const mangaId = (_b = (_a = $('.slider__content', featuredManga).find('a').first().attr('href')) === null || _a === void 0 ? void 0 : _a.split('/manga/')[1]) !== null && _b !== void 0 ? _b : '';
+        const title = (_c = $('h4', featuredManga).find('a').first().text().replace(/(Raw - Free)/g, '').trim()) !== null && _c !== void 0 ? _c : '';
+        const image = $('.slider__thumb', featuredManga).find('img').first().attr('data-src');
         featured.push(createMangaTile({
             id: mangaId,
             image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
-            title: createIconText({
-                text: title,
-            }),
+            title: createIconText({ text: title, }),
         }));
     }
     sectionCallback(featuredSection);
     featuredSection.items = featured;
-    for (let topManga of $('.main-sticky-mangas.main-col-inner.c-page')
-        .find('.page-item-detail.manga')
-        .toArray()) {
-        const mangaId = $(topManga).find('a').first().attr('href').split('/manga/')[1];
+    for (let topManga of $('.main-col-inner.c-page').first().find('.page-item-detail.manga').toArray()) {
+        const mangaId = $('a', topManga).first().attr('href').split('/manga/')[1];
         const title = $(topManga).find('h3 > a').first().text().split(' ')[0];
-        const image = (_a = $(topManga).find('img').first().attr('data-src')) !== null && _a !== void 0 ? _a : $(topManga).find('img').first().attr('src');
+        const image = $('a', topManga).first().find('img').first().attr('data-src');
         top.push(createMangaTile({
             id: mangaId,
             image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
@@ -742,7 +722,7 @@ const parseHomeSections = ($, sectionCallback) => {
     sectionCallback(topSection);
     topSection.items = top;
     for (let recentlyUpdatedManga of $('.main-col-inner.c-page').next().find('.page-item-detail.manga').toArray()) {
-        const mangaId = $(recentlyUpdatedManga).find('a').first().attr('href').split('/manga/')[1];
+        const mangaId = $('a', recentlyUpdatedManga).first().attr('href').split('/manga/')[1];
         const title = $(recentlyUpdatedManga).find('h3 > a').first().text().split(' ')[0];
         const image = $(recentlyUpdatedManga).find('img').first().attr('data-src');
         recentlyUpdated.push(createMangaTile({
