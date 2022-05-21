@@ -12,8 +12,8 @@ import {
     SearchRequest,
     // Section,
     Source,
-    // Request,
-    // Response,
+    Request,
+    Response,
     SourceInfo,
     // RequestHeaders,
     TagType,
@@ -27,11 +27,14 @@ import {
     'content-type': 'application/x-www-form-urlencoded',
     Referer: M1000_DOMAIN,
   }
-  export const MangaGohanInfo: SourceInfo = {
-    version: '0.5.1',
+  const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
+
+
+  export const Manga1000Info: SourceInfo = {
+    version: '0.5.2',
     name: 'Manga 1000',
-    icon: 'logo.png',
     author: 'btylerh7',
+    icon: 'logo.png',
     authorWebsite: 'https://github.com/btylerh7',
     description: 'Extension that pulls manga from Manga 1000',
     contentRating: ContentRating.EVERYONE,
@@ -47,13 +50,34 @@ import {
 
 
   export class Manga1000 extends Source {
+ 
+
     requestManager = createRequestManager({
-        requestsPerSecond: 5,
-        requestTimeout: 80000,
-    })
+        requestsPerSecond: 4,
+        requestTimeout: 15000,
+        interceptor: {
+          interceptRequest: async (request: Request): Promise<Request> => {
+    
+              request.headers = {
+                  ...(request.headers ?? {}),
+                  ...{
+                      'user-agent': userAgent,
+                      'referer': `${M1000_DOMAIN}/`
+                  }
+              }
+    
+              return request
+          },
+    
+          interceptResponse: async (response: Response): Promise<Response> => {
+              return response
+          }
+      }
+      })
 
     parser = new Parser()
 
+    
     override getMangaShareUrl(mangaId: string): string {
         return `${M1000_DOMAIN}/${mangaId}`
     }

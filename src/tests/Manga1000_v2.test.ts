@@ -1,6 +1,6 @@
 import cheerio from 'cheerio'
 import { APIWrapper, SearchRequest, Source } from 'paperback-extensions-common'
-import { Manga1000 } from '../Manga1000_v2/manga1000'
+import { Manga1000 } from '../Manga1000_v2/Manga1000_v2'
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 
@@ -43,11 +43,11 @@ describe('Manga1000 Tests', () => {
   })
 
   it('Get Chapter Details', async () => {
-    const chapters = await wrapper.getChapters(source, mangaId)
+    // const chapters = await wrapper.getChapters(source, mangaId)
     //      const chapter = chapters[0]
     //        console.log(chapter)
 
-    const data = await wrapper.getChapterDetails(source, mangaId, chapters[0]?.id ?? 'unknown')
+    const data = await wrapper.getChapterDetails(source, mangaId, '8149') //chapters[0]?.id ?? 
     expect(data, 'No server response').to.exist
     expect(data, 'Empty server response').to.not.be.empty
 

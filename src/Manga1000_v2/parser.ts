@@ -1,10 +1,8 @@
 import {
     Chapter,
     LanguageCode,
-    // Chapter,
-    // ChapterDetails,
+    ChapterDetails,
     // HomeSection,
-    // LanguageCode,
     Manga,
     MangaStatus,
     MangaTile,
@@ -16,12 +14,12 @@ import {
     // Tag,
   } from 'paperback-extensions-common'
 
-const entities = require('entities')
 export class Parser {
     parseMangaDetails($:CheerioStatic, mangaId: string): Manga {
         const titles = []
         const title = $('.manga-info h3').first().text()
         titles.push(title)
+
         const desc = $('.summary-content').find('p').text()
         const image = $('.thumbnail').attr('src')
         const rating = 0
@@ -53,10 +51,11 @@ export class Parser {
     
     async parseChapters($:CheerioStatic, mangaId:string): Promise<Chapter[]> {
         const chapters: Chapter[] = []
-        const chapterList = $('')
-        for (const chapter of chapterList.toArray()){
-            const id = chapter.attribs['href']?.split(`/`)[3]
-            const chapNum = Number(chapter.attribs['title']?.split(' ')[1])
+        const chapterLinks = $('.list-chapters.at-series a').toArray()
+        console.log(chapterLinks)
+        for (const chapter of chapterLinks){
+            const id = chapter.attribs['href']
+            const chapNum = 0
             chapters.push(
                 createChapter({
                     id: id ?? '',
@@ -69,7 +68,7 @@ export class Parser {
         
         return chapters
     }
-    async parseChapterDetails($:CheerioStatic, mangaId:string, id: string) {
+    async parseChapterDetails($:CheerioStatic, mangaId:string, id: string): Promise<ChapterDetails>{
         const pages: string[] = []
         const chapterImages = $('.chapter-content img').toArray()
         for (const img of chapterImages) {
