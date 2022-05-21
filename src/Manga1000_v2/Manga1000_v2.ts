@@ -53,8 +53,8 @@ import {
  
 
     requestManager = createRequestManager({
-        requestsPerSecond: 4,
-        requestTimeout: 15000,
+        requestsPerSecond: 5,
+        requestTimeout: 20000,
         interceptor: {
           interceptRequest: async (request: Request): Promise<Request> => {
     
