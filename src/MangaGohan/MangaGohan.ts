@@ -56,6 +56,7 @@ export const MangaGohanInfo: SourceInfo = {
 }
 
 export class MangaGohan extends Source {
+  
   readonly cookies = [
     createCookie({
       name: 'isAdult',
@@ -72,7 +73,7 @@ export class MangaGohan extends Source {
   }
   requestManager = createRequestManager({
     requestsPerSecond: 4,
-    requestTimeout: 15000,
+    requestTimeout: 80000,
     interceptor: {
       interceptRequest: async (request: Request): Promise<Request> => {
 
@@ -80,7 +81,7 @@ export class MangaGohan extends Source {
               ...(request.headers ?? {}),
               ...{
                   'user-agent': userAgent,
-                  'referer': `${MG_DOMAIN}/`
+                  'referer': 'https://mangagohan.me/?__cf_chl_tk=Vdie6FXxTJZv3.cpvMsRffoLHmwttqIvYSyp79VoXQI-1653012153-0-gaNycGzNCqU'
               }
           }
 
@@ -101,7 +102,8 @@ export class MangaGohan extends Source {
       method,
       headers,
     })
-    const data = await this.requestManager.schedule(request, 1)
+    const data = await this.requestManager.schedule(request, 3)
+    this.CloudFlareError(data.status)
     let $ = this.cheerio.load(data.data)
 
     return parseMangaDetails($, mangaId)
@@ -112,7 +114,8 @@ export class MangaGohan extends Source {
       method,
       headers,
     })
-    const data = await this.requestManager.schedule(request, 1)
+    const data = await this.requestManager.schedule(request, 3)
+    this.CloudFlareError(data.status)
     let $ = this.cheerio.load(data.data)
 
     return parseChapters($, mangaId)
@@ -123,7 +126,8 @@ export class MangaGohan extends Source {
       method,
       headers,
     })
-    const data = await this.requestManager.schedule(request, 1)
+    const data = await this.requestManager.schedule(request, 3)
+    this.CloudFlareError(data.status)
     let $ = this.cheerio.load(data.data)
 
     return parseChapterDetails($, mangaId, chapterId)
@@ -147,7 +151,7 @@ export class MangaGohan extends Source {
         method,
         headers,
       })}
-    const data = await this.requestManager.schedule(request, 1)
+    const data = await this.requestManager.schedule(request, 3)
     let $ = this.cheerio.load(data.data)
     const manga = parseSearchRequest($, type)
     metadata = manga.length > 0 ? { page: page + 1 } : undefined
@@ -165,7 +169,7 @@ export class MangaGohan extends Source {
       headers,
     })
 
-    const response = await this.requestManager.schedule(request, 1)
+    const response = await this.requestManager.schedule(request, 3)
     const $ = this.cheerio.load(response.data)
     parseHomeSections($, sectionCallback)
   }
@@ -179,4 +183,9 @@ export class MangaGohan extends Source {
     const $ = this.cheerio.load(response.data)
     return parseTags($)
   }
+  CloudFlareError(status: any) {
+    if (status == 503) {
+        throw new Error('CLOUDFLARE BYPASS ERROR:\nPlease go to Settings > Sources > <The name of this source> and press Cloudflare Bypass')
+    }
+}
 }
