@@ -39,7 +39,7 @@ const headers = {
 const method = 'GET'
 
 export const MangaGohanInfo: SourceInfo = {
-  version: '0.5.1',
+  version: '1.0.0',
   name: 'Manga Gohan',
   icon: 'logo.png',
   author: 'btylerh7',
