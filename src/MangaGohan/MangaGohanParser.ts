@@ -20,12 +20,10 @@ import {
 //     const rating = Number($('.score.font-meta.total_votes').text()) ?? 0
 
 
-//   }
-// }
 
 
 export const parseMangaDetails = ($: CheerioStatic, mangaId: string): Manga => {
-  const titles= [$('.post-title').find('h1').first().text().replace(/(Raw - Free)/g, '').trim() ?? '']
+  const titles= [$('.post-title').find('h1').first().text().replace('(Raw - Free)', '').trim() ?? '']
   const image = $('.summary_image').find('img').attr('data-src')
   let status = MangaStatus.UNKNOWN //All manga is listed as ongoing
   const author = $('.author-content').find('a').first().text()
@@ -115,8 +113,8 @@ export const parseSearchRequest = ($: CheerioStatic, type: string): MangaTile[] 
   for (let result of results.toArray()) {
     // const id = article.attribs.class[0].split('-')[1]
     const mangaId = $(result).find('.h4').find('a').first().attr('href')?.split('manga/')[1] ?? ''
-    const image = $(result).find('img').first().attr('data-srcset') ?? ''
-    const title = $(result).find('.h4').first().text().split(' ')[0] ?? ''
+    const image = $('.tab-thumb.c-image-hover > a > img',result).attr('data-src')
+    const title = $(result).find('.h4').first().text().replace(/(Raw-Free)/g, '').trim() ?? ''
 
     tiles.push(
       createMangaTile({
@@ -166,7 +164,7 @@ export const parseHomeSections = ($: CheerioStatic, sectionCallback: (section: H
 
   for (let featuredManga of $('.popular-slider.style-1').find('.slider__item').toArray()) {
     const mangaId = $('.slider__content', featuredManga).find('a').first().attr('href')?.split('/manga/')[1] ?? ''
-    const title = $('h4', featuredManga).find('a').first().text().replace(/(Raw - Free)/g, '').trim() ?? ''
+    const title = $('h4', featuredManga).find('a').first().text().replace(/(Raw-Free)/g, '').trim() ?? ''
     const image = $('.slider__thumb', featuredManga).find('img').first().attr('data-src')
 
     featured.push(
@@ -177,26 +175,32 @@ export const parseHomeSections = ($: CheerioStatic, sectionCallback: (section: H
       })
     )
   }
-  sectionCallback(featuredSection)
   featuredSection.items = featured
+  sectionCallback(featuredSection)
 
-  for (let topManga of $('.main-col-inner.c-page').first().find('.page-item-detail.manga').toArray()) {
-    const mangaId = $('a', topManga).first().attr('href')!.split('/manga/')[1]
-    const title = $(topManga).find('h3 > a').first().text().split(' ')[0]
-    const image = $('a', topManga).first().find('img').first().attr('data-src') 
+  
+ 
+
+
+
+  for (let topManga of $('.c-blog__content').first().find('.page-item-detail.manga').toArray()) {
+    const mangaId = $('a', topManga).first().attr('href')!.split('/manga/')[1] ?? ''
+    const title = $(topManga).find('h3 > a').first().text().split(' ')[0] ?? ''
+    const image = $(topManga).find('img').first().attr('src')
 
     top.push(
       createMangaTile({
-        id: mangaId!,
+        id: mangaId,
         image: image ?? 'https://i.imgur.com/GYUxEX8.png',
         title: createIconText({
-          text: title!,
+          text: title,
         }),
       })
     )
   }
-  sectionCallback(topSection)
   topSection.items = top
+  sectionCallback(topSection)
+  
 
   for (let recentlyUpdatedManga of $('.main-col-inner.c-page').next().find('.page-item-detail.manga').toArray()) {
     const mangaId = $('a', recentlyUpdatedManga).first().attr('href')!.split('/manga/')[1]
