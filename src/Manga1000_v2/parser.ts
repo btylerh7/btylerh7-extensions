@@ -51,20 +51,27 @@ export class Parser {
     
     async parseChapters($:CheerioStatic, mangaId:string): Promise<Chapter[]> {
         const chapters: Chapter[] = []
-        const chapterLinks = $('.list-chapters.at-series a').toArray()
-        console.log(chapterLinks)
-        for (const chapter of chapterLinks){
+        const chapterList = $('.card-body.bg-light').find('a')
+        console.log(chapterList[0]?.attribs['title'])
+        console.log(chapterList[0])
+        for (const chapter of $('.list-chapters.at-series').find('a').toArray()){
             const id = chapter.attribs['href']
-            const chapNum = 0
+            console.log(id)
+            /* ?.replace(/\//g, '').trim() */
+            const chapNum = chapter.attribs['title']?.match(/[0-9]/g)
+            if(id == undefined) continue
+            if(id.includes('manga')) continue
             chapters.push(
                 createChapter({
                     id: id ?? '',
                     mangaId,
-                    chapNum,
+                    chapNum: Number(chapNum),
                     langCode: LanguageCode.JAPANESE
                 })
             )
         }
+        console.log("chapter length is ", chapters.length)
+        console.log(chapters[0])
         
         return chapters
     }

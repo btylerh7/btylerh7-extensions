@@ -50,11 +50,18 @@ import {
 
 
   export class Manga1000 extends Source {
- 
+
+    override getCloudflareBypassRequest() {
+        return createRequestObject({
+          url: `${M1000_DOMAIN}`,
+          method: 'GET',
+          headers
+        })
+      }
 
     requestManager = createRequestManager({
         requestsPerSecond: 5,
-        requestTimeout: 20000,
+        requestTimeout: 80000,
         interceptor: {
           interceptRequest: async (request: Request): Promise<Request> => {
     
@@ -64,7 +71,7 @@ import {
                       'user-agent': userAgent,
                       'referer': `${M1000_DOMAIN}/`
                   }
-              }
+              }https://manga1000.top/cdn-cgi/bm/cv/result?req_id=70f1114e4f9cadc6
     
               return request
           },
@@ -95,9 +102,12 @@ import {
     }
     async getChapters(mangaId: string): Promise<Chapter[]> {
         const request = createRequestObject({
-            url: `${M1000_DOMAIN}/${mangaId}`,
+            url: `${M1000_DOMAIN}/${mangaId}?asgtbndr=1`,
             method: 'GET',
-            headers
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded',
+                Referer: `${M1000_DOMAIN}/${mangaId}?asgtbndr=1`,
+              }
         })
 
         const response = await this.requestManager.schedule(request, 3)
@@ -120,7 +130,7 @@ import {
         let page = metadata?.page ?? 1
         if (page == -1) return createPagedResults({ results: [], metadata: { page: -1 } })
 
-        const param = `/search?keyword=${(query.title ?? '').replaceAll(' ', '+')}&page=${page}`
+        const param = `/search?keyword=${(query.title ?? '').replace(/ /g, '+')}&page=${page}`
         const request = createRequestObject({
             url: `${M1000_DOMAIN}/manga-list.html`,
             method: 'GET',
