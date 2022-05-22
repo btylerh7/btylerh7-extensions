@@ -401,7 +401,7 @@ const headers = {
 };
 const method = 'GET';
 exports.MangaGohanInfo = {
-    version: '0.5.1',
+    version: '1.0.0',
     name: 'Manga Gohan',
     icon: 'logo.png',
     author: 'btylerh7',
