@@ -15,7 +15,7 @@ describe('Manga1000 Tests', () => {
    * Try to choose a manga which is updated frequently, so that the historical checking test can
    * return proper results, as it is limited to searching 30 days back due to extremely long processing times otherwise.
    */
-  const mangaId = '1489' // Attack on Titan = 1489
+  const mangaId = '708' // Attack on Titan = 1489
 
   it('Retrieve Manga Details', async () => {
     const details = await wrapper.getMangaDetails(source, mangaId)
@@ -47,7 +47,7 @@ describe('Manga1000 Tests', () => {
     const chapters = await wrapper.getChapters(source, mangaId)
 
     const data = await wrapper.getChapterDetails(source, mangaId, chapters[0]?.id ?? 'unknown')
-    console.log(data)
+    // console.log(data)
     expect(data, 'No server response').to.exist
     expect(data, 'Empty server response').to.not.be.empty
 
@@ -76,13 +76,13 @@ describe('Manga1000 Tests', () => {
     expect(result?.subtitleText, 'No subtitle text').to.be.not.null
   })
 
-  // it('Testing Home-Page aquisition', async () => {
-  //   const homePages = await wrapper.getHomePageSections(source)
-  //   expect(homePages, 'No response from server').to.exist
-  //   expect(homePages[0]?.items, 'No items present').to.exist
-  //   // console.log('latest:', homePages![0]!.items)
-  //   // console.log('top:', homePages![1]!.items)
-  // })
+  it('Testing Home-Page aquisition', async () => {
+    const homePages = await wrapper.getHomePageSections(source)
+    expect(homePages, 'No response from server').to.exist
+    expect(homePages[0]?.items, 'No items present').to.exist
+    // console.log('latest:', homePages![0]!.items)
+    // console.log('top:', homePages![1]!.items)
+  })
   // it('Get tags', async () => {
   //   const tags = await wrapper.getTags(source)
   //   const taglist = tags![0]?.tags!

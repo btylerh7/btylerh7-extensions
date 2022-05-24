@@ -4,7 +4,7 @@ import {
     Chapter,
     ChapterDetails,
     ContentRating,
-    // HomeSection,
+    HomeSection,
     // LanguageCode,
     Manga,
     // MangaUpdates,
@@ -55,17 +55,9 @@ export const Manga1000Info: SourceInfo = {
 
 export class Manga1000 extends Source {
 
-override getCloudflareBypassRequest() {
-    return createRequestObject({
-        url: `${M1000_DOMAIN}`,
-        method: 'GET',
-        headers
-    })
-    }
 
 requestManager = createRequestManager({
     requestsPerSecond: 3,
-    // requestTimeout: 5000,
     interceptor: {
         interceptRequest: async (request: Request): Promise<Request> => {
 
@@ -149,5 +141,16 @@ async getSearchResults(query: SearchRequest, metadata: any): Promise<PagedResult
         metadata: { page: page },
     })
 }
+override async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
+    const request = createRequestObject({
+      url: M1000_DOMAIN,
+      method: 'GET',
+      headers,
+    })
+
+    const response = await this.requestManager.schedule(request, 1)
+    const $ = this.cheerio.load(response.data)
+    return this.parser.parseHomeSections($, sectionCallback)
+  }
 }
   
