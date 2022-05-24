@@ -20,7 +20,8 @@ export class Parser {
         const title = $('.manga-info h3').first().text()
         titles.push(title)
 
-        const desc = $('.summary-content').find('p').text()
+        let desc = $('.summary-content').find('p').text()
+        if(desc == ''){desc = $('.summary-content').find('p').next().text()}
         const image = $('.thumbnail').attr('src')
         const rating = 0
         const status = MangaStatus.ONGOING
@@ -49,37 +50,35 @@ export class Parser {
         return author
     }
     
-    async parseChapters($:CheerioStatic, mangaId:string): Promise<Chapter[]> {
+    parseChapters($:CheerioStatic, mangaId:string): Chapter[] {
         const chapters: Chapter[] = []
-        const chapterList = $('.card-body.bg-light').find('a')
-        console.log(chapterList[0]?.attribs['title'])
-        console.log(chapterList[0])
+        // const chapterList = $('.card-body.bg-light').find('a')
+        // console.log(chapterList[0]?.attribs['title'])
+        // console.log(chapterList[0])
         for (const chapter of $('.list-chapters.at-series').find('a').toArray()){
-            const id = chapter.attribs['href']
-            console.log(id)
-            /* ?.replace(/\//g, '').trim() */
-            const chapNum = chapter.attribs['title']?.match(/[0-9]/g)
+ 
+            const id = chapter.attribs['href']?.split(`${mangaId}/`)[1]?.replace('/','').trim()
+            const chapNum = chapter.attribs['title']?.replace('Chapter ', '').trim()
             if(id == undefined) continue
-            if(id.includes('manga')) continue
+            // if(id.includes('manga')) continue
             chapters.push(
                 createChapter({
-                    id: id ?? '',
+                    id,
                     mangaId,
                     chapNum: Number(chapNum),
                     langCode: LanguageCode.JAPANESE
                 })
             )
         }
-        console.log("chapter length is ", chapters.length)
-        console.log(chapters[0])
+        // console.log("chapter length is ", chapters.length)
+        // console.log(chapters[0])
         
         return chapters
     }
-    async parseChapterDetails($:CheerioStatic, mangaId:string, id: string): Promise<ChapterDetails>{
+    parseChapterDetails($:CheerioStatic, mangaId:string, id: string): ChapterDetails{
         const pages: string[] = []
-        const chapterImages = $('.chapter-content img').toArray()
-        for (const img of chapterImages) {
-            const imgUrl = img.attribs['data-src'] ?? img.attribs['src']
+        for (const img of $('.chapter-content').find('img').toArray()) {
+            const imgUrl = $(img).attr('data-src')?.trim() ?? $(img).attr('src')?.trim()
             if (!imgUrl) continue
             pages.push(imgUrl)
         }
@@ -90,18 +89,17 @@ export class Parser {
             longStrip: false,
           })
     }
-    async parseSearchResults($:CheerioStatic): Promise<MangaTile[]>{
+    parseSearchResults($:CheerioStatic): MangaTile[]{
         const results: MangaTile[] = []
-        for(const result in $('.row-last-update div').toArray()){
-            const id = $('.thumb-wrapper', result).attr('data-id') ?? ''
-            const image = $('.content.img-in-ratio.lazyloaded', result).attr('data-bg') ?? ''
+        for(const result of $('#history').find('.thumb-wrapper').toArray()){
+            const id = $(result).attr('data-id') ?? ''
+            const image = $(result).find('.content.img-in-ratio.lazyloaded').attr('data-bg') ?? ''
             const title = ''
             results.push(createMangaTile({
                 id,
                 image,
                 title: createIconText({ text: title})
             }))
-            
         }
         return results
     }

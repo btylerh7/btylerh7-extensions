@@ -23,7 +23,7 @@ describe('Manga1000 Tests', () => {
 
     // Validate that the fields are filled
     const data = details
-    console.log('manga details:', data)
+    // console.log('manga details:', data)
     expect(data.image, 'Missing Image').to.be.not.empty
     expect(data.status, 'Missing Status').to.exist
     // expect(data.desc, 'Missing Description').to.be.not.empty
@@ -33,6 +33,7 @@ describe('Manga1000 Tests', () => {
 
   it('Get Chapters', async () => {
     const data = await wrapper.getChapters(source, mangaId)
+    // console.log("chapter details for",`${mangaId}: `, data)
 
     expect(data, 'No chapters present for: [' + mangaId + ']').to.not.be.empty
 
@@ -43,11 +44,10 @@ describe('Manga1000 Tests', () => {
   })
 
   it('Get Chapter Details', async () => {
-    // const chapters = await wrapper.getChapters(source, mangaId)
-    //      const chapter = chapters[0]
-    //        console.log(chapter)
+    const chapters = await wrapper.getChapters(source, mangaId)
 
-    const data = await wrapper.getChapterDetails(source, mangaId, '8149') //chapters[0]?.id ?? 
+    const data = await wrapper.getChapterDetails(source, mangaId, chapters[0]?.id ?? 'unknown')
+    console.log(data)
     expect(data, 'No server response').to.exist
     expect(data, 'Empty server response').to.not.be.empty
 
@@ -58,7 +58,7 @@ describe('Manga1000 Tests', () => {
 
   it('Testing search', async () => {
     const testSearch: SearchRequest = {
-      title: 'titan',
+      title: 'kanojo',
       parameters: {
         // includedTags: ['sf・ファンタジー'],
       },
@@ -66,7 +66,7 @@ describe('Manga1000 Tests', () => {
 
     const search = await wrapper.searchRequest(source, testSearch, 1)
     const result = search.results[0]
-    console.log(search.results[1])
+    // console.log(search.results[1])
 
     expect(result, 'No response from server').to.exist
 
