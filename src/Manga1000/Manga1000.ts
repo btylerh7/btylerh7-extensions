@@ -4,7 +4,7 @@ import {
     Chapter,
     ChapterDetails,
     ContentRating,
-    // HomeSection,
+    HomeSection,
     // LanguageCode,
     Manga,
     // MangaUpdates,
@@ -30,7 +30,7 @@ Referer: M1000_DOMAIN,
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
 
 export const Manga1000Info: SourceInfo = {
-    version: '0.6.0',
+    version: '0.7.0',
     name: 'Manga 1000',
     description: 'Extension that pulls manga from Manga1000.top.',
     author: 'btylerh7',
@@ -55,17 +55,9 @@ export const Manga1000Info: SourceInfo = {
 
 export class Manga1000 extends Source {
 
-override getCloudflareBypassRequest() {
-    return createRequestObject({
-        url: `${M1000_DOMAIN}`,
-        method: 'GET',
-        headers
-    })
-    }
 
 requestManager = createRequestManager({
     requestsPerSecond: 3,
-    // requestTimeout: 5000,
     interceptor: {
         interceptRequest: async (request: Request): Promise<Request> => {
 
@@ -149,5 +141,16 @@ async getSearchResults(query: SearchRequest, metadata: any): Promise<PagedResult
         metadata: { page: page },
     })
 }
+override async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
+    const request = createRequestObject({
+      url: M1000_DOMAIN,
+      method: 'GET',
+      headers,
+    })
+
+    const response = await this.requestManager.schedule(request, 1)
+    const $ = this.cheerio.load(response.data)
+    return this.parser.parseHomeSections($, sectionCallback)
+  }
 }
   
