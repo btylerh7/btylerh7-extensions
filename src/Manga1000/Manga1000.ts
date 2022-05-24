@@ -22,7 +22,7 @@ import {
 
   import { Parser } from './parser'
 
-  export const M1000_DOMAIN = 'https://manga1000.top/'
+  export const M1000_DOMAIN = 'https://manga1000.top'
   const headers = {
     'content-type': 'application/x-www-form-urlencoded',
     Referer: M1000_DOMAIN,
@@ -30,11 +30,11 @@ import {
   const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
 
 
-  export const Manga1000Info: SourceInfo = {
+  export const Manga1000_v2Info: SourceInfo = {
     version: '0.5.2',
     name: 'Manga 1000',
-    author: 'btylerh7',
     icon: 'logo.png',
+    author: 'btylerh7',
     authorWebsite: 'https://github.com/btylerh7',
     description: 'Extension that pulls manga from Manga 1000',
     contentRating: ContentRating.EVERYONE,
@@ -69,9 +69,9 @@ import {
                   ...(request.headers ?? {}),
                   ...{
                       'user-agent': userAgent,
-                      'referer': `${M1000_DOMAIN}/`
+                      'referer': `${M1000_DOMAIN}`
                   }
-              }https://manga1000.top/cdn-cgi/bm/cv/result?req_id=70f1114e4f9cadc6
+              }
     
               return request
           },

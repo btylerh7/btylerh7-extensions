@@ -1,6 +1,6 @@
 import cheerio from 'cheerio'
 import { APIWrapper, SearchRequest, Source } from 'paperback-extensions-common'
-import { Manga1000 } from '../Manga1000_v2/Manga1000_v2'
+import { Manga1000 } from '../Manga1000/Manga1000'
 import chai from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 
