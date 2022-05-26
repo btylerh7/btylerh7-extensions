@@ -52,6 +52,10 @@ export const MangaGohanInfo: SourceInfo = {
       text: 'Japanese',
       type: TagType.GREY,
     },
+    {
+      text: 'Site Down',
+      type: TagType.RED,
+    },
   ],
 }
 
