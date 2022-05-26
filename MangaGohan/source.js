@@ -414,6 +414,10 @@ exports.MangaGohanInfo = {
             text: 'Japanese',
             type: paperback_extensions_common_1.TagType.GREY,
         },
+        {
+            text: 'Site Down',
+            type: paperback_extensions_common_1.TagType.RED,
+        },
     ],
 };
 class MangaGohan extends paperback_extensions_common_1.Source {
