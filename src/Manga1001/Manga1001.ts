@@ -4,7 +4,7 @@ import {
     Chapter,
     ChapterDetails,
     ContentRating,
-    HomeSection,
+    // HomeSection,
     // LanguageCode,
     Manga,
     // MangaUpdates,
@@ -87,7 +87,7 @@ override getMangaShareUrl(mangaId: string): string {
 
 async getMangaDetails(mangaId: string): Promise<Manga> {
     const request = createRequestObject({
-        url: `${M1001_DOMAIN}/${mangaId}/`,
+        url: encodeURI(`${M1001_DOMAIN}/${mangaId}-raw-–-free/?asgtbndr=1`),
         method: 'GET',
         headers
     })
@@ -98,7 +98,7 @@ async getMangaDetails(mangaId: string): Promise<Manga> {
 }
 async getChapters(mangaId: string): Promise<Chapter[]> {
     const request = createRequestObject({
-        url: `${M1001_DOMAIN}/${mangaId}/`,
+        url: encodeURI(`${M1001_DOMAIN}/${mangaId}-raw-–-free/?asgtbndr=1`),
         method: 'GET',
         headers
     })
@@ -109,7 +109,7 @@ async getChapters(mangaId: string): Promise<Chapter[]> {
 }
 async getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDetails> {
     const request = createRequestObject({
-        url: `${M1001_DOMAIN}/${mangaId}/${chapterId}/`,
+        url: encodeURI(`${M1001_DOMAIN}/${mangaId}-–-raw-${chapterId}/`),
         method: 'GET',
         headers
     })
@@ -124,7 +124,7 @@ async getSearchResults(query: SearchRequest, metadata: any): Promise<PagedResult
     if (page == -1) return createPagedResults({ results: [], metadata: { page: -1 } })
 
     const request = createRequestObject({
-        url: `${M1001_DOMAIN}/manga-list.html?name=${(query.title ?? '').replace(/ /g, '+')}&page=${page}`,
+        url: `${M1001_DOMAIN}/?s=${(encodeURI(query.title ?? '')).replace(/ /g, '+')}`, //&page=${page}
         method: 'GET',
         headers
     })
@@ -141,16 +141,16 @@ async getSearchResults(query: SearchRequest, metadata: any): Promise<PagedResult
         metadata: { page: page },
     })
 }
-override async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
-    const request = createRequestObject({
-      url: M1001_DOMAIN,
-      method: 'GET',
-      headers,
-    })
+// override async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
+//     const request = createRequestObject({
+//       url: M1001_DOMAIN,
+//       method: 'GET',
+//       headers,
+//     })
 
-    const response = await this.requestManager.schedule(request, 1)
-    const $ = this.cheerio.load(response.data)
-    return this.parser.parseHomeSections($, sectionCallback)
-  }
+//     const response = await this.requestManager.schedule(request, 1)
+//     const $ = this.cheerio.load(response.data)
+//     return this.parser.parseHomeSections($, sectionCallback)
+//   }
 }
   
