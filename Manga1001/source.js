@@ -399,7 +399,7 @@ const headers = {
 };
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
 exports.Manga1001Info = {
-    version: '1.0.0',
+    version: '1.0.1',
     name: 'Manga 1001',
     description: 'Extension that pulls manga from Manga1001.top. This is a different site than Manga1000.',
     author: 'btylerh7',
@@ -575,9 +575,9 @@ class Parser {
         for (let article of $('#main').find('article').toArray()) {
             const image = $(article).find('img').attr('data-src');
             console.log(image);
-            const [title, mangaId] = (_b = (_a = $(article).find('img').attr('alt')) === null || _a === void 0 ? void 0 : _a.replace('(Raw – Free)', '').trim()) !== null && _b !== void 0 ? _b : '';
+            const title = (_b = (_a = $(article).find('img').attr('alt')) === null || _a === void 0 ? void 0 : _a.replace('(Raw – Free)', '').trim()) !== null && _b !== void 0 ? _b : ''; //Title and MangaId are same
             results.push(createMangaTile({
-                id: mangaId !== null && mangaId !== void 0 ? mangaId : '',
+                id: title,
                 image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
                 title: createIconText({
                     text: title !== null && title !== void 0 ? title : ''
