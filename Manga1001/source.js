@@ -399,7 +399,7 @@ const headers = {
 };
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
 exports.Manga1001Info = {
-    version: '1.0.2',
+    version: '1.0.3',
     name: 'Manga 1001',
     description: 'Extension that pulls manga from Manga1001.top. This is a different site than Manga1000.',
     author: 'btylerh7',
@@ -495,7 +495,7 @@ class Manga1001 extends paperback_extensions_common_1.Source {
             if (page == -1)
                 return createPagedResults({ results: [], metadata: { page: -1 } });
             const request = createRequestObject({
-                url: `${exports.M1001_DOMAIN}/?s=${((_b = query.title) !== null && _b !== void 0 ? _b : '').replace(/ /g, '+')}`,
+                url: `${exports.M1001_DOMAIN}/?s=${encodeURI(((_b = query.title) !== null && _b !== void 0 ? _b : '')).replace(/ /g, '+')}`,
                 method: 'GET',
                 headers
             });
@@ -524,7 +524,7 @@ class Parser {
         var _a;
         const wrapper = $('.content-wrap-inner');
         const titles = [];
-        const title = $('h1.entry-title', wrapper).text().replace('(Raw - Free)', '').trim();
+        const title = $('h1.entry-title', wrapper).text().replace('(Raw – Free)', '').trim();
         // const otherTitles = $('.entry-title', wrapper).text().replace('(Raw - Free)','').trim()
         titles.push(title);
         const image = (_a = $('.entry-content', wrapper).find('img').attr('data-src')) !== null && _a !== void 0 ? _a : '';
@@ -575,10 +575,10 @@ class Parser {
         const results = [];
         for (let article of $('#main').find('article').toArray()) {
             const image = $(article).find('img').attr('data-src');
-            console.log(image);
-            const title = (_b = (_a = $(article).find('img').attr('alt')) === null || _a === void 0 ? void 0 : _a.replace('(Raw – Free)', '').trim()) !== null && _b !== void 0 ? _b : ''; //Title and MangaId are same
+            const title = (_b = (_a = $(article).find('img').attr('alt')) === null || _a === void 0 ? void 0 : _a.replace('(Raw – Free)', '').trim()) !== null && _b !== void 0 ? _b : '';
+            const mangaId = title.toLowerCase();
             results.push(createMangaTile({
-                id: title,
+                id: mangaId,
                 image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
                 title: createIconText({
                     text: title !== null && title !== void 0 ? title : ''
