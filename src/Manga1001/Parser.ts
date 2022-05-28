@@ -4,7 +4,7 @@ export class Parser {
     parseMangaDetails($:CheerioStatic, mangaId: string):Manga {
         const wrapper = $('.content-wrap-inner')
         const titles = []
-        const title = $('h1.entry-title', wrapper).text().replace('(Raw - Free)','').trim()
+        const title = $('h1.entry-title', wrapper).text().replace('(Raw – Free)','').trim()
         // const otherTitles = $('.entry-title', wrapper).text().replace('(Raw - Free)','').trim()
         titles.push(title)
         const image = $('.entry-content', wrapper).find('img').attr('data-src') ?? ''
@@ -55,10 +55,10 @@ export class Parser {
         const results = []
         for (let article of $('#main').find('article').toArray()){
             const image = $(article).find('img').attr('data-src')
-            console.log(image)
-            const title = $(article).find('img').attr('alt')?.replace('(Raw – Free)', '').trim() ?? '' //Title and MangaId are same
+            const title = $(article).find('img').attr('alt')?.replace('(Raw – Free)', '').trim() ?? ''
+            const mangaId = title.toLowerCase()
             results.push(createMangaTile({
-                id: title,
+                id: mangaId,
                 image: image ?? 'https://i.imgur.com/GYUxEX8.png',
                 title: createIconText({
                     text: title ?? ''
