@@ -4,7 +4,8 @@ export class Parser {
     parseMangaDetails($:CheerioStatic, mangaId: string):Manga {
         const wrapper = $('.content-wrap-inner')
         const titles = []
-        const title = $('.entry-title', wrapper).text().replace('(Raw - Free)','').trim()
+        const title = $('h1.entry-title', wrapper).text().replace('(Raw - Free)','').trim()
+        // const otherTitles = $('.entry-title', wrapper).text().replace('(Raw - Free)','').trim()
         titles.push(title)
         const image = $('.entry-content', wrapper).find('img').attr('data-src') ?? ''
         const rating = 0 //Not Provided
