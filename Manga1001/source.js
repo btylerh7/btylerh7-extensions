@@ -524,7 +524,8 @@ class Parser {
         var _a;
         const wrapper = $('.content-wrap-inner');
         const titles = [];
-        const title = $('.entry-title', wrapper).text().replace('(Raw - Free)', '').trim();
+        const title = $('h1.entry-title', wrapper).text().replace('(Raw - Free)', '').trim();
+        // const otherTitles = $('.entry-title', wrapper).text().replace('(Raw - Free)','').trim()
         titles.push(title);
         const image = (_a = $('.entry-content', wrapper).find('img').attr('data-src')) !== null && _a !== void 0 ? _a : '';
         const rating = 0; //Not Provided
