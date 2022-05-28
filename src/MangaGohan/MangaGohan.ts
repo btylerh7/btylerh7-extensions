@@ -53,9 +53,9 @@ export const MangaGohanInfo: SourceInfo = {
       type: TagType.GREY,
     },
     {
-      text: "Site Down",
+      text: 'CloudFlare',
       type: TagType.RED,
-    }
+    },
   ],
 }
 
