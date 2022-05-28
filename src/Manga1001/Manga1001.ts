@@ -30,7 +30,7 @@ Referer: M1001_DOMAIN,
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
 
 export const Manga1000Info: SourceInfo = {
-    version: '0.1.0',
+    version: '1.0.0',
     name: 'Manga 1000',
     description: 'Extension that pulls manga from Manga1001.top. This is a different site than Manga1000.',
     author: 'btylerh7',
@@ -109,7 +109,7 @@ async getChapters(mangaId: string): Promise<Chapter[]> {
 }
 async getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDetails> {
     const request = createRequestObject({
-        url: encodeURI(`${M1001_DOMAIN}/${mangaId}-–-raw-${chapterId}/`),
+        url: encodeURI(`${M1001_DOMAIN}/${mangaId}-–-raw-${chapterId}/?asgtbndr=1`),
         method: 'GET',
         headers
     })
@@ -124,7 +124,7 @@ async getSearchResults(query: SearchRequest, metadata: any): Promise<PagedResult
     if (page == -1) return createPagedResults({ results: [], metadata: { page: -1 } })
 
     const request = createRequestObject({
-        url: `${M1001_DOMAIN}/?s=${(encodeURI(query.title ?? '')).replace(/ /g, '+')}`, //&page=${page}
+        url: `${M1001_DOMAIN}/?s=${(query.title ?? '').replace(/ /g, '+')}`, //&page=${page}
         method: 'GET',
         headers
     })

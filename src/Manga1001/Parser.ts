@@ -22,9 +22,9 @@ export class Parser {
     parseChapters($:CheerioStatic, mangaId: string): Chapter[]{
         const chapters = []
         for(let chapterInfo of $('.chaplist').find('a').toArray()) {
-            const id = encodeURI($(chapterInfo).attr('href')!).split('Raw ')[1] ?? ''
-            const chapNum = id?.replace(/第|話/g, '').trim()
-            console.log("id:", id, "chapNum:", chapNum)
+            const id = $(chapterInfo).text().split('Raw ')[1]?.trim() ?? ''
+            const chapNum = id?.replace(/第|話|【|】/g, '').trim()
+            // console.log("id:", id, "chapNum:", chapNum)
             chapters.push(createChapter({
                 id,
                 mangaId,
@@ -52,16 +52,15 @@ export class Parser {
     }
     parseSearchResults($:CheerioStatic): MangaTile[]{
         const results = []
-        for (let article in $('.inner-wrapper').find('article').toArray()){
-            const image = $('.featured-thumb.wp-block-image', article).find('img').attr('src')
-            const title = $(article).find('.entry-title').first().find('a').text().trim()
-            const link =  $(article).find('.entry-title').first().find('a').attr('href') ?? ''
-            const mangaId = encodeURI(link)?.split('.top/')[1]?.trim() ?? ''
+        for (let article of $('#main').find('article').toArray()){
+            const image = $(article).find('img').attr('data-src')
+            console.log(image)
+            const [title, mangaId] = $(article).find('img').attr('alt')?.replace('(Raw – Free)', '').trim() ?? ''
             results.push(createMangaTile({
-                id: mangaId,
+                id: mangaId ?? '',
                 image: image ?? 'https://i.imgur.com/GYUxEX8.png',
                 title: createIconText({
-                    text: title
+                    text: title ?? ''
                 }),
             }))
         }

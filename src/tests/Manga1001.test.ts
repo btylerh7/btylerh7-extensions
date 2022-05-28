@@ -15,7 +15,7 @@ describe('Manga1000 Tests', () => {
    * Try to choose a manga which is updated frequently, so that the historical checking test can
    * return proper results, as it is limited to searching 30 days back due to extremely long processing times otherwise.
    */
-  const mangaId = 'カノジョも彼女' // Attack on Titan = 1489
+  const mangaId = '進撃の巨人' // Attack on Titan = 1489
 
   it('Retrieve Manga Details', async () => {
     const details = await wrapper.getMangaDetails(source, mangaId)
@@ -45,7 +45,12 @@ describe('Manga1000 Tests', () => {
 
   it('Get Chapter Details', async () => {
     const chapters = await wrapper.getChapters(source, mangaId)
+    // console.log(`https://manga1001.top/${mangaId}-–-raw-${chapters[0]?.id}/`)
+    // 'https://manga1001.top/カノジョも彼女-–-raw-【第92話】/'
 
+    // 'https://manga1001.top/カノジョも彼女-–-raw-【第92話】/'
+ 
+    
     const data = await wrapper.getChapterDetails(source, mangaId, chapters[0]?.id ?? 'unknown')
     // console.log(data)
     expect(data, 'No server response').to.exist
