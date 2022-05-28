@@ -55,9 +55,9 @@ export class Parser {
         for (let article of $('#main').find('article').toArray()){
             const image = $(article).find('img').attr('data-src')
             console.log(image)
-            const [title, mangaId] = $(article).find('img').attr('alt')?.replace('(Raw – Free)', '').trim() ?? ''
+            const title = $(article).find('img').attr('alt')?.replace('(Raw – Free)', '').trim() ?? '' //Title and MangaId are same
             results.push(createMangaTile({
-                id: mangaId ?? '',
+                id: title,
                 image: image ?? 'https://i.imgur.com/GYUxEX8.png',
                 title: createIconText({
                     text: title ?? ''
