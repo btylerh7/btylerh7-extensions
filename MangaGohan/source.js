@@ -401,7 +401,7 @@ const headers = {
 };
 const method = 'GET';
 exports.MangaGohanInfo = {
-    version: '1.0.1',
+    version: '1.0.2',
     name: 'Manga Gohan',
     icon: 'logo.png',
     author: 'btylerh7',
@@ -700,7 +700,7 @@ const parseSearchRequest = ($, type) => {
 };
 exports.parseSearchRequest = parseSearchRequest;
 const parseHomeSections = ($, sectionCallback) => {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f;
     const featuredSection = createHomeSection({ id: '0', title: 'Featured Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowLarge, view_more: false, });
     const topSection = createHomeSection({ id: '1', title: 'Top Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
     const recentlyUpdatedSection = createHomeSection({ id: '2', title: 'Reccently Updated Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
@@ -735,7 +735,7 @@ const parseHomeSections = ($, sectionCallback) => {
     topSection.items = top;
     sectionCallback(topSection);
     for (let recentlyUpdatedManga of $('.main-col-inner.c-page').next().find('.page-item-detail.manga').toArray()) {
-        const mangaId = decodeURI($('a', recentlyUpdatedManga).first().attr('href')).split('/manga/')[1];
+        const mangaId = (_f = $('a', recentlyUpdatedManga).first().attr('href')) === null || _f === void 0 ? void 0 : _f.split('/manga/')[1];
         const title = $(recentlyUpdatedManga).find('h3 > a').first().text().split(' ')[0];
         const image = $(recentlyUpdatedManga).find('img').first().attr('data-src');
         recentlyUpdated.push(createMangaTile({
