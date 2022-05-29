@@ -90,6 +90,7 @@ export const parseChapterDetails = ($: CheerioStatic, mangaId: string, chapterId
 
   for (const img of links.toArray()) {
     const page = img.attribs['data-src']?.trim()
+    console.log(page)
     // img.attribs['data-src']?.trim() ?? 
     if (!page) continue
     pages.push(page)
@@ -127,7 +128,7 @@ export const parseSearchRequest = ($: CheerioStatic, type: string): MangaTile[] 
     )
     }
 }
-  // If there is a genre search
+  // TODO If there is a genre search
   if(type === 'tag') {
     results = $('.tab-content-wrap').find('.page-item-detail.manga')
     for (let result of results.toArray()) {
@@ -152,9 +153,9 @@ export const parseSearchRequest = ($: CheerioStatic, type: string): MangaTile[] 
 
 export const parseHomeSections = ($: CheerioStatic, sectionCallback: (section: HomeSection) => void): void => {
   
-  const featuredSection = createHomeSection({id: '0', title: 'Featured', type: HomeSectionType.featured, view_more: false,})
+  const featuredSection = createHomeSection({id: '0', title: 'Featured Manga', type: HomeSectionType.singleRowLarge, view_more: false,})
   const topSection = createHomeSection({id: '1', title: 'Top Manga', type: HomeSectionType.singleRowNormal, view_more: false,})
-  const recentlyUpdatedSection = createHomeSection({id: '2', title: 'Reccently Updated', type: HomeSectionType.singleRowNormal, view_more: false,})
+  const recentlyUpdatedSection = createHomeSection({id: '2', title: 'Reccently Updated Manga', type: HomeSectionType.singleRowNormal, view_more: false,})
 
   const featured = []
   const top = []
@@ -163,7 +164,7 @@ export const parseHomeSections = ($: CheerioStatic, sectionCallback: (section: H
   //Retrieve Featured Manga Section
 
   for (let featuredManga of $('.popular-slider.style-1').find('.slider__item').toArray()) {
-    const mangaId = $('.slider__content', featuredManga).find('a').first().attr('href')?.split('/manga/')[1] ?? ''
+    const mangaId = decodeURI($('.slider__content', featuredManga).find('a').first().attr('href')!)?.split('/manga/')[1] ?? ''
     const title = $('h4', featuredManga).find('a').first().text().replace(/(Raw-Free)/g, '').trim() ?? ''
     const image = $('.slider__thumb', featuredManga).find('img').first().attr('data-src')
 
@@ -184,7 +185,7 @@ export const parseHomeSections = ($: CheerioStatic, sectionCallback: (section: H
 
 
   for (let topManga of $('.c-blog__content').first().find('.page-item-detail.manga').toArray()) {
-    const mangaId = $('a', topManga).first().attr('href')!.split('/manga/')[1] ?? ''
+    const mangaId = decodeURI($('a', topManga).first().attr('href')!.split('/manga/')[1] ?? '')
     const title = $(topManga).find('h3 > a').first().text().split(' ')[0] ?? ''
     const image = $(topManga).find('img').first().attr('src')
 
@@ -203,7 +204,7 @@ export const parseHomeSections = ($: CheerioStatic, sectionCallback: (section: H
   
 
   for (let recentlyUpdatedManga of $('.main-col-inner.c-page').next().find('.page-item-detail.manga').toArray()) {
-    const mangaId = $('a', recentlyUpdatedManga).first().attr('href')!.split('/manga/')[1]
+    const mangaId = decodeURI($('a', recentlyUpdatedManga).first().attr('href')!).split('/manga/')[1]
     const title = $(recentlyUpdatedManga).find('h3 > a').first().text().split(' ')[0]
     const image = $(recentlyUpdatedManga).find('img').first().attr('data-src')
 

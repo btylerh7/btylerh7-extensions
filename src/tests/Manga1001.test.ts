@@ -23,7 +23,7 @@ describe('Manga1000 Tests', () => {
 
     // Validate that the fields are filled
     const data = details
-    console.log('manga details:', data)
+    // console.log('manga details:', data)
     expect(data.image, 'Missing Image').to.be.not.empty
     expect(data.status, 'Missing Status').to.exist
     // expect(data.desc, 'Missing Description').to.be.not.empty
@@ -33,7 +33,7 @@ describe('Manga1000 Tests', () => {
 
   it('Get Chapters', async () => {
     const data = await wrapper.getChapters(source, mangaId)
-    console.log("chapter details for",`${mangaId}: `, data)
+    // console.log("chapter details for",`${mangaId}: `, data)
 
     expect(data, 'No chapters present for: [' + mangaId + ']').to.not.be.empty
 
@@ -63,7 +63,7 @@ describe('Manga1000 Tests', () => {
 
   it('Testing search', async () => {
     const testSearch: SearchRequest = {
-      title: 'kanojo',
+      title: 'hunter',
       parameters: {
         // includedTags: ['sf・ファンタジー'],
       },
@@ -71,7 +71,7 @@ describe('Manga1000 Tests', () => {
 
     const search = await wrapper.searchRequest(source, testSearch, 1)
     const result = search.results[0]
-    console.log(search.results[1])
+    // console.log(search.results[7])
 
     expect(result, 'No response from server').to.exist
 
@@ -81,12 +81,12 @@ describe('Manga1000 Tests', () => {
     expect(result?.subtitleText, 'No subtitle text').to.be.not.null
   })
 
-//   it('Testing Home-Page aquisition', async () => {
-//     const homePages = await wrapper.getHomePageSections(source)
-//     expect(homePages, 'No response from server').to.exist
-//     expect(homePages[0]?.items, 'No items present').to.exist
-    // console.log('latest:', homePages![0]!.items)
-    // console.log('top:', homePages![1]!.items)
+  it('Testing Home-Page aquisition', async () => {
+    const homePages = await wrapper.getHomePageSections(source)
+    expect(homePages, 'No response from server').to.exist
+    expect(homePages[0]?.items, 'No items present').to.exist
+    console.log('top:', homePages![0]!.items)
+    console.log('latest:', homePages![1]!.items)
   })
   // it('Get tags', async () => {
   //   const tags = await wrapper.getTags(source)
@@ -105,4 +105,4 @@ describe('Manga1000 Tests', () => {
   //   expect(updates, 'Empty server response').to.not.be.empty
   //   expect(updates[0], 'No updates').to.not.be.empty
 //   })
-// })
+})

@@ -39,7 +39,7 @@ const headers = {
 const method = 'GET'
 
 export const MangaGohanInfo: SourceInfo = {
-  version: '1.0.0',
+  version: '1.0.1',
   name: 'Manga Gohan',
   icon: 'logo.png',
   author: 'btylerh7',
@@ -77,7 +77,7 @@ export class MangaGohan extends Source {
   }
   requestManager = createRequestManager({
     requestsPerSecond: 4,
-    requestTimeout: 80000,
+    requestTimeout: 6000,
     interceptor: {
       interceptRequest: async (request: Request): Promise<Request> => {
 
@@ -114,7 +114,7 @@ export class MangaGohan extends Source {
   }
   async getChapters(mangaId: string): Promise<Chapter[]> {
     const request = createRequestObject({
-      url: `${MG_DOMAIN}/manga/${mangaId}`,
+      url: encodeURI(`${MG_DOMAIN}/manga/${mangaId}`),
       method,
       headers,
     })
@@ -143,7 +143,7 @@ export class MangaGohan extends Source {
     if(query.title) {
       request = createRequestObject({
         url: MG_DOMAIN,
-        param: `/?s=${encodeURI(query.title)}&post_type=wp-manga&post_type=wp-manga`,
+        param: `/?s=${encodeURI(query.title)}&post_type=wp-manga`,
         method,
         headers,
       })
@@ -156,6 +156,7 @@ export class MangaGohan extends Source {
         headers,
       })}
     const data = await this.requestManager.schedule(request, 3)
+    this.CloudFlareError(data.status)
     let $ = this.cheerio.load(data.data)
     const manga = parseSearchRequest($, type)
     metadata = manga.length > 0 ? { page: page + 1 } : undefined
@@ -175,6 +176,7 @@ export class MangaGohan extends Source {
 
     const response = await this.requestManager.schedule(request, 3)
     const $ = this.cheerio.load(response.data)
+    this.CloudFlareError(response.status)
     parseHomeSections($, sectionCallback)
   }
   override async getSearchTags(): Promise<TagSection[]> {
