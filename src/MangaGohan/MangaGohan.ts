@@ -142,19 +142,17 @@ export class MangaGohan extends Source {
     let request
     if(query.title) {
       request = createRequestObject({
-        url: MG_DOMAIN,
-        param: `/?s=${encodeURI(query.title)}&post_type=wp-manga`,
+        url: `${MG_DOMAIN}/?s=${encodeURI(query.title)}&post_type=wp-manga`,
         method,
         headers,
       })
     }
-    else {
-      if(query.includedTags) type = 'tag'
-      request = createRequestObject({
-        url:`${MG_DOMAIN}/${encodeURI(query.includedTags?.map((x: any) => x.id)[0])}`,
-        method,
-        headers,
-      })}
+    if(query.includedTags) type = 'tag'
+    request = createRequestObject({
+      url:`${MG_DOMAIN}/manga-genre/${encodeURI(query.includedTags?.map((x: any) => x.id)[0])}/page/${page.toString()}`,
+      method,
+      headers,
+    })
     const data = await this.requestManager.schedule(request, 3)
     this.CloudFlareError(data.status)
     let $ = this.cheerio.load(data.data)
@@ -186,6 +184,7 @@ export class MangaGohan extends Source {
       headers,
     })
     const response = await this.requestManager.schedule(request, 1)
+    this.CloudFlareError(response.status)
     const $ = this.cheerio.load(response.data)
     return parseTags($)
   }

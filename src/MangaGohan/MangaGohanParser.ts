@@ -90,7 +90,7 @@ export const parseChapterDetails = ($: CheerioStatic, mangaId: string, chapterId
 
   for (const img of links.toArray()) {
     const page = img.attribs['data-src']?.trim()
-    console.log(page)
+    // console.log(page)
     // img.attribs['data-src']?.trim() ?? 
     if (!page) continue
     pages.push(page)
@@ -224,14 +224,16 @@ export const parseHomeSections = ($: CheerioStatic, sectionCallback: (section: H
 
 export const parseTags = ($: CheerioSelector): TagSection[] => {
   const tags: Tag[] = []
-  const data = $('.sub-menu').find('a')
-  for (const link of data.toArray()) {
-    const id = decodeURI($(link).attr('href')!.split('com/')[1]!)
+
+  for (const link of $('.container > div > div > ul').find('li > a').toArray()) {
+    const id = decodeURI($(link).attr('href')!.split('me/manga-genre/')[1]!)
     const label = $(link).text().trim()
     if (!id || !label) continue
-    if (!decodeURI($(link).attr('href')!.split('com/')[1]!)?.startsWith('manga-genre')) continue
-    tags.push({ id: id!, label: label })
+    if (!decodeURI($(link).attr('href')!.split('me/')[1]!)?.startsWith('manga-genre')) continue
+    tags.push({ id: id, label: label })
   }
+  console.log(tags)
+
   const tagSection: TagSection[] = [
     createTagSection({
       id: '0',
