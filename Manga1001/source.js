@@ -399,7 +399,7 @@ const headers = {
 };
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
 exports.Manga1001Info = {
-    version: '1.0.3',
+    version: '1.1.0',
     name: 'Manga 1001',
     description: 'Extension that pulls manga from Manga1001.top. This is a different site than Manga1000.',
     author: 'btylerh7',
@@ -438,16 +438,6 @@ class Manga1001 extends paperback_extensions_common_1.Source {
             }
         });
         this.parser = new Parser_1.Parser();
-        // override async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
-        //     const request = createRequestObject({
-        //       url: M1001_DOMAIN,
-        //       method: 'GET',
-        //       headers,
-        //     })
-        //     const response = await this.requestManager.schedule(request, 1)
-        //     const $ = this.cheerio.load(response.data)
-        //     return this.parser.parseHomeSections($, sectionCallback)
-        //   }
     }
     getMangaShareUrl(mangaId) {
         return `${exports.M1001_DOMAIN}/${mangaId}`;
@@ -511,6 +501,22 @@ class Manga1001 extends paperback_extensions_common_1.Source {
             });
         });
     }
+    getHomePageSections(sectionCallback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (let section of ['top', 'recently updated']) {
+                const url = section == 'top' ? `${exports.M1001_DOMAIN}/?asgtbndr=1` : `${exports.M1001_DOMAIN}/newmanga/?asgtbndr=1`;
+                const request = createRequestObject({
+                    url,
+                    method: 'GET',
+                    headers,
+                });
+                const response = yield this.requestManager.schedule(request, 1);
+                const $ = this.cheerio.load(response.data);
+                this.parser.parseHomeSections($, section, sectionCallback);
+            }
+            return;
+        });
+    }
 }
 exports.Manga1001 = Manga1001;
 
@@ -571,12 +577,12 @@ class Parser {
         });
     }
     parseSearchResults($) {
-        var _a, _b;
+        var _a, _b, _c, _d, _e;
         const results = [];
         for (let article of $('#main').find('article').toArray()) {
             const image = $(article).find('img').attr('data-src');
             const title = (_b = (_a = $(article).find('img').attr('alt')) === null || _a === void 0 ? void 0 : _a.replace('(Raw – Free)', '').trim()) !== null && _b !== void 0 ? _b : '';
-            const mangaId = title.toLowerCase();
+            const mangaId = (_e = (_d = (_c = decodeURI($(article).find('a').attr('href'))) === null || _c === void 0 ? void 0 : _c.split('.top/')[1]) === null || _d === void 0 ? void 0 : _d.replace('-raw-–-free/', '').trim()) !== null && _e !== void 0 ? _e : '';
             results.push(createMangaTile({
                 id: mangaId,
                 image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
@@ -586,6 +592,46 @@ class Parser {
             }));
         }
         return results;
+    }
+    parseHomeSections($, sectionTitle, sectionCallback) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        const topSection = createHomeSection({ id: '0', title: 'Top Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
+        const recentlyUpdatedSection = createHomeSection({ id: '1', title: 'Reccently Updated', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
+        if (sectionTitle == 'top') {
+            const top = [];
+            for (let topManga of $('#main').find('article').toArray()) {
+                const image = $(topManga).find('img').attr('data-src');
+                const title = (_b = (_a = $(topManga).find('img').attr('alt')) === null || _a === void 0 ? void 0 : _a.replace('(Raw – Free)', '').trim()) !== null && _b !== void 0 ? _b : '';
+                const mangaId = (_e = (_d = (_c = decodeURI($(topManga).find('a').attr('href'))) === null || _c === void 0 ? void 0 : _c.split('.top/')[1]) === null || _d === void 0 ? void 0 : _d.replace('-raw-–-free/', '').trim()) !== null && _e !== void 0 ? _e : '';
+                top.push(createMangaTile({
+                    id: mangaId,
+                    image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
+                    title: createIconText({
+                        text: title !== null && title !== void 0 ? title : ''
+                    }),
+                }));
+            }
+            topSection.items = top;
+            return sectionCallback(topSection);
+        }
+        if (sectionTitle == 'recently updated') {
+            const recentlyUpdated = [];
+            for (let recentlyUpdatedManga of $('#main').find('article').toArray()) {
+                const image = $(recentlyUpdatedManga).find('img').attr('src');
+                const title = (_g = (_f = $(recentlyUpdatedManga).find('img').attr('alt')) === null || _f === void 0 ? void 0 : _f.replace('(Raw – Free)', '').trim()) !== null && _g !== void 0 ? _g : '';
+                const mangaId = (_j = (_h = $(recentlyUpdatedManga).find('img').attr('alt')) === null || _h === void 0 ? void 0 : _h.replace('(Raw – Free)', '').trim()) !== null && _j !== void 0 ? _j : '';
+                recentlyUpdated.push(createMangaTile({
+                    id: mangaId.toLowerCase(),
+                    image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
+                    title: createIconText({
+                        text: title !== null && title !== void 0 ? title : ''
+                    }),
+                }));
+            }
+            recentlyUpdatedSection.items = recentlyUpdated;
+            return sectionCallback(recentlyUpdatedSection);
+        }
+        return;
     }
 }
 exports.Parser = Parser;

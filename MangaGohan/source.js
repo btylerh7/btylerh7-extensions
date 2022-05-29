@@ -401,7 +401,7 @@ const headers = {
 };
 const method = 'GET';
 exports.MangaGohanInfo = {
-    version: '1.0.0',
+    version: '1.0.1',
     name: 'Manga Gohan',
     icon: 'logo.png',
     author: 'btylerh7',
@@ -432,7 +432,7 @@ class MangaGohan extends paperback_extensions_common_1.Source {
         ];
         this.requestManager = createRequestManager({
             requestsPerSecond: 4,
-            requestTimeout: 80000,
+            requestTimeout: 6000,
             interceptor: {
                 interceptRequest: (request) => __awaiter(this, void 0, void 0, function* () {
                     var _a;
@@ -474,7 +474,7 @@ class MangaGohan extends paperback_extensions_common_1.Source {
     getChapters(mangaId) {
         return __awaiter(this, void 0, void 0, function* () {
             const request = createRequestObject({
-                url: `${exports.MG_DOMAIN}/manga/${mangaId}`,
+                url: encodeURI(`${exports.MG_DOMAIN}/manga/${mangaId}`),
                 method,
                 headers,
             });
@@ -506,7 +506,7 @@ class MangaGohan extends paperback_extensions_common_1.Source {
             if (query.title) {
                 request = createRequestObject({
                     url: exports.MG_DOMAIN,
-                    param: `/?s=${encodeURI(query.title)}&post_type=wp-manga&post_type=wp-manga`,
+                    param: `/?s=${encodeURI(query.title)}&post_type=wp-manga`,
                     method,
                     headers,
                 });
@@ -521,6 +521,7 @@ class MangaGohan extends paperback_extensions_common_1.Source {
                 });
             }
             const data = yield this.requestManager.schedule(request, 3);
+            this.CloudFlareError(data.status);
             let $ = this.cheerio.load(data.data);
             const manga = (0, MangaGohanParser_1.parseSearchRequest)($, type);
             metadata = manga.length > 0 ? { page: page + 1 } : undefined;
@@ -540,6 +541,7 @@ class MangaGohan extends paperback_extensions_common_1.Source {
             });
             const response = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(response.data);
+            this.CloudFlareError(response.status);
             (0, MangaGohanParser_1.parseHomeSections)($, sectionCallback);
         });
     }
@@ -641,6 +643,7 @@ const parseChapterDetails = ($, mangaId, chapterId) => {
     const links = $('.reading-content').find('img');
     for (const img of links.toArray()) {
         const page = (_a = img.attribs['data-src']) === null || _a === void 0 ? void 0 : _a.trim();
+        console.log(page);
         // img.attribs['data-src']?.trim() ?? 
         if (!page)
             continue;
@@ -675,7 +678,7 @@ const parseSearchRequest = ($, type) => {
             }));
         }
     }
-    // If there is a genre search
+    // TODO If there is a genre search
     if (type === 'tag') {
         results = $('.tab-content-wrap').find('.page-item-detail.manga');
         for (let result of results.toArray()) {
@@ -698,15 +701,15 @@ const parseSearchRequest = ($, type) => {
 exports.parseSearchRequest = parseSearchRequest;
 const parseHomeSections = ($, sectionCallback) => {
     var _a, _b, _c, _d, _e;
-    const featuredSection = createHomeSection({ id: '0', title: 'Featured', type: paperback_extensions_common_1.HomeSectionType.featured, view_more: false, });
+    const featuredSection = createHomeSection({ id: '0', title: 'Featured Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowLarge, view_more: false, });
     const topSection = createHomeSection({ id: '1', title: 'Top Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
-    const recentlyUpdatedSection = createHomeSection({ id: '2', title: 'Reccently Updated', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
+    const recentlyUpdatedSection = createHomeSection({ id: '2', title: 'Reccently Updated Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
     const featured = [];
     const top = [];
     const recentlyUpdated = [];
     //Retrieve Featured Manga Section
     for (let featuredManga of $('.popular-slider.style-1').find('.slider__item').toArray()) {
-        const mangaId = (_b = (_a = $('.slider__content', featuredManga).find('a').first().attr('href')) === null || _a === void 0 ? void 0 : _a.split('/manga/')[1]) !== null && _b !== void 0 ? _b : '';
+        const mangaId = (_b = (_a = decodeURI($('.slider__content', featuredManga).find('a').first().attr('href'))) === null || _a === void 0 ? void 0 : _a.split('/manga/')[1]) !== null && _b !== void 0 ? _b : '';
         const title = (_c = $('h4', featuredManga).find('a').first().text().replace(/(Raw-Free)/g, '').trim()) !== null && _c !== void 0 ? _c : '';
         const image = $('.slider__thumb', featuredManga).find('img').first().attr('data-src');
         featured.push(createMangaTile({
@@ -718,7 +721,7 @@ const parseHomeSections = ($, sectionCallback) => {
     featuredSection.items = featured;
     sectionCallback(featuredSection);
     for (let topManga of $('.c-blog__content').first().find('.page-item-detail.manga').toArray()) {
-        const mangaId = (_d = $('a', topManga).first().attr('href').split('/manga/')[1]) !== null && _d !== void 0 ? _d : '';
+        const mangaId = decodeURI((_d = $('a', topManga).first().attr('href').split('/manga/')[1]) !== null && _d !== void 0 ? _d : '');
         const title = (_e = $(topManga).find('h3 > a').first().text().split(' ')[0]) !== null && _e !== void 0 ? _e : '';
         const image = $(topManga).find('img').first().attr('src');
         top.push(createMangaTile({
@@ -732,7 +735,7 @@ const parseHomeSections = ($, sectionCallback) => {
     topSection.items = top;
     sectionCallback(topSection);
     for (let recentlyUpdatedManga of $('.main-col-inner.c-page').next().find('.page-item-detail.manga').toArray()) {
-        const mangaId = $('a', recentlyUpdatedManga).first().attr('href').split('/manga/')[1];
+        const mangaId = decodeURI($('a', recentlyUpdatedManga).first().attr('href')).split('/manga/')[1];
         const title = $(recentlyUpdatedManga).find('h3 > a').first().text().split(' ')[0];
         const image = $(recentlyUpdatedManga).find('img').first().attr('data-src');
         recentlyUpdated.push(createMangaTile({
