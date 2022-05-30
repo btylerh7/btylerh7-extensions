@@ -39,7 +39,7 @@ const headers = {
 const method = 'GET'
 
 export const MangaGohanInfo: SourceInfo = {
-  version: '1.1.0',
+  version: '1.1.1',
   name: 'Manga Gohan',
   icon: 'logo.png',
   author: 'btylerh7',
@@ -142,7 +142,8 @@ export class MangaGohan extends Source {
     let request
     if(query.title) {
       request = createRequestObject({
-        url: `${MG_DOMAIN}/?s=${encodeURI(query.title)}&post_type=wp-manga`,
+        url: MG_DOMAIN,
+        param: `/?s=${encodeURI(query.title)}&post_type=wp-manga`, 
         method,
         headers,
       })
