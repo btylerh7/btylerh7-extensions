@@ -19,14 +19,7 @@ import {
   TagType,
   TagSection,
 } from 'paperback-extensions-common'
-import {
-    parseMangaDetails,
-    parseChapters,
-    parseChapterDetails,
-    parseSearchRequest,
-    parseHomeSections,
-  parseTags,
-} from './MangaGohanParser'
+import {Parser} from './MangaGohanParser'
 
 export const MG_DOMAIN = 'https://mangagohan.me'
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
@@ -39,7 +32,7 @@ const headers = {
 const method = 'GET'
 
 export const MangaGohanInfo: SourceInfo = {
-  version: '1.1.1',
+  version: '1.1.2',
   name: 'Manga Gohan',
   icon: 'logo.png',
   author: 'btylerh7',
@@ -52,15 +45,16 @@ export const MangaGohanInfo: SourceInfo = {
       text: 'Japanese',
       type: TagType.GREY,
     },
-    {
-      text: 'CloudFlare',
-      type: TagType.RED,
-    },
+    // Recently, bypass has not been needed. Could change in future.
+    // {
+    //   text: 'CloudFlare',
+    //   type: TagType.RED,
+    // },
   ],
 }
 
 export class MangaGohan extends Source {
-  
+  parser = new Parser()
   readonly cookies = [
     createCookie({
       name: 'isAdult',
@@ -110,7 +104,7 @@ export class MangaGohan extends Source {
     this.CloudFlareError(data.status)
     let $ = this.cheerio.load(data.data)
 
-    return parseMangaDetails($, mangaId)
+    return this.parser.parseMangaDetails($, mangaId)
   }
   async getChapters(mangaId: string): Promise<Chapter[]> {
     const request = createRequestObject({
@@ -122,7 +116,7 @@ export class MangaGohan extends Source {
     this.CloudFlareError(data.status)
     let $ = this.cheerio.load(data.data)
 
-    return parseChapters($, mangaId)
+    return this.parser.parseChapters($, mangaId)
   }
   async getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDetails> {
     const request = createRequestObject({
@@ -134,7 +128,7 @@ export class MangaGohan extends Source {
     this.CloudFlareError(data.status)
     let $ = this.cheerio.load(data.data)
 
-    return parseChapterDetails($, mangaId, chapterId)
+    return this.parser.parseChapterDetails($, mangaId, chapterId)
   }
   async getSearchResults(query: SearchRequest, metadata: any): Promise<PagedResults> {
     let page: number = metadata?.page ?? 1
@@ -146,18 +140,20 @@ export class MangaGohan extends Source {
         param: `/?s=${encodeURI(query.title)}&post_type=wp-manga`, 
         method,
         headers,
+      }) 
+    }
+    else {
+      if(query.includedTags) type = 'tag'
+      request = createRequestObject({
+        url:`${MG_DOMAIN}/manga-genre/${encodeURI(query.includedTags?.map((x: any) => x.id)[0])}/page/${page.toString()}`,
+        method,
+        headers,
       })
     }
-    if(query.includedTags) type = 'tag'
-    request = createRequestObject({
-      url:`${MG_DOMAIN}/manga-genre/${encodeURI(query.includedTags?.map((x: any) => x.id)[0])}/page/${page.toString()}`,
-      method,
-      headers,
-    })
     const data = await this.requestManager.schedule(request, 3)
     this.CloudFlareError(data.status)
     let $ = this.cheerio.load(data.data)
-    const manga = parseSearchRequest($, type)
+    const manga = this.parser.parseSearchRequest($, type)
     metadata = manga.length > 0 ? { page: page + 1 } : undefined
     // metadata = page
 
@@ -176,7 +172,7 @@ export class MangaGohan extends Source {
     const response = await this.requestManager.schedule(request, 3)
     const $ = this.cheerio.load(response.data)
     this.CloudFlareError(response.status)
-    parseHomeSections($, sectionCallback)
+    this.parser.parseHomeSections($, sectionCallback)
   }
   override async getSearchTags(): Promise<TagSection[]> {
     const request = createRequestObject({
@@ -187,11 +183,11 @@ export class MangaGohan extends Source {
     const response = await this.requestManager.schedule(request, 1)
     this.CloudFlareError(response.status)
     const $ = this.cheerio.load(response.data)
-    return parseTags($)
+    return this.parser.parseTags($)
   }
   CloudFlareError(status: any) {
     if (status == 503) {
         throw new Error('CLOUDFLARE BYPASS ERROR:\nPlease go to Settings > Sources > <The name of this source> and press Cloudflare Bypass')
     }
-}
+  }
 }
