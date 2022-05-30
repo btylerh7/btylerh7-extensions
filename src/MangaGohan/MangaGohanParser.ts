@@ -1,3 +1,6 @@
+/* eslint-disable linebreak-style */
+/* eslint-disable @typescript-eslint/indent */
+
 import {
   Chapter,
   ChapterDetails,
@@ -13,7 +16,6 @@ import {
   Tag,
 } from 'paperback-extensions-common'
 
-'(Raw – Free)'
 
 export class Parser {
   parseMangaDetails($: CheerioStatic, mangaId: string): Manga {

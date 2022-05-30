@@ -11,7 +11,7 @@ import {
     // // SearchRequest,
     // TagSection,
     // Tag,
-  } from 'paperback-extensions-common'
+} from 'paperback-extensions-common'
 
 export class Parser {
     parseMangaDetails($:CheerioStatic, mangaId: string): Manga {
@@ -38,7 +38,7 @@ export class Parser {
 
         })
     }
-    parseAuthor($:CheerioStatic) {
+    parseAuthor($:CheerioStatic): string {
         let author = ''
         const detailSet = $('.manga-info').find('li')
         for (const detail of detailSet.toArray()){
@@ -86,7 +86,7 @@ export class Parser {
             mangaId,
             pages,
             longStrip: false,
-          })
+        })
     }
     parseSearchResults($:CheerioStatic): MangaTile[]{
         const results: MangaTile[] = []
@@ -112,50 +112,49 @@ export class Parser {
         const newManga = []
       
       
-        for (let popularManga of $('.owl-stage-outer').find('.thumb-wrapper').toArray()) {
-          const mangaId = $('a', popularManga).attr('href')?.replace('/','').trim()
-          const title = '' //Not provided by site
-          const image = $('.content.img-in-ratio', popularManga).css('background-image').split('url("')[1]?.replace('")','').trim()
-        //   console.log(image)
+        for (const popularManga of $('.owl-stage-outer').find('.thumb-wrapper').toArray()) {
+            const mangaId = $('a', popularManga).attr('href')?.replace('/','').trim()
+            const title = '' //Not provided by site
+            const image = $('.content.img-in-ratio', popularManga).css('background-image').split('url("')[1]?.replace('")','').trim()
       
-          popular.push(
-            createMangaTile({
-              id: mangaId!,
-              image: image ?? 'https://i.imgur.com/GYUxEX8.png',
-              title: createIconText({
-                text: title,
-              }),
-            })
-          )
+            popular.push(
+              createMangaTile({
+                id: mangaId!,
+                image: image ?? 'https://i.imgur.com/GYUxEX8.png',
+                title: createIconText({
+                  text: title,
+                }),
+              })
+            )
         }
         
         popularSection.items = popular
         sectionCallback(popularSection)
       
 
-        for (let recentlyUpdatedManga of $('.thumb-item-flow.col-6.col-md-3',$('.row-last-update')).toArray()) {
+        for (const recentlyUpdatedManga of $('.thumb-item-flow.col-6.col-md-3',$('.row-last-update')).toArray()) {
             const mangaId = $('a',recentlyUpdatedManga).attr('href')?.split('/')[1]?.replace('/', '') ?? ''
             if (mangaId == 'manga-list.html?sort=last_update') continue
             const image = $(recentlyUpdatedManga).find('.content.img-in-ratio.lazyloaded').attr('data-bg') ?? ''
             const title = '' //Not provided by site
             // console.log("recent:", image)
       
-          recentlyUpdated.push(
-            createMangaTile({
-              id: mangaId,
-              image: image ?? 'https://i.imgur.com/GYUxEX8.png',
-              title: createIconText({
-                text: title,
-              }),
-            })
-          )
+            recentlyUpdated.push(
+                createMangaTile({
+                  id: mangaId,
+                  image: image ?? 'https://i.imgur.com/GYUxEX8.png',
+                  title: createIconText({
+                    text: title,
+                  }),
+                })
+            )
         }
         
         recentlyUpdatedSection.items = recentlyUpdated
         sectionCallback(recentlyUpdatedSection)
       
         let newMangaDiv = $('.row-last-update').next()
-        for (let newMangaItem of $('.thumb-item-flow.col-6.col-md-3',newMangaDiv).toArray()) {
+        for (const newMangaItem of $('.thumb-item-flow.col-6.col-md-3',newMangaDiv).toArray()) {
             const mangaId = $('a',newMangaItem).attr('href')?.split('/')[1]?.replace('/', '') ?? ''
             if (mangaId == 'manga-list.html?sort=last_update') continue
             const image = $(newMangaItem).find('.content.img-in-ratio.lazyloaded').attr('data-bg') ?? ''
@@ -163,11 +162,11 @@ export class Parser {
             console.log('new:', $('a',newMangaItem).attr('href'))
             newManga.push(
                 createMangaTile({
-                id: mangaId,
-                image: image ?? 'https://i.imgur.com/GYUxEX8.png',
-                title: createIconText({
-                    text: title,
-                }),
+                    id: mangaId,
+                    image: image ?? 'https://i.imgur.com/GYUxEX8.png',
+                    title: createIconText({
+                        text: title,
+                    }),
                 })
             )
         }
