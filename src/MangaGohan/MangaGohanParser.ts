@@ -120,7 +120,8 @@ export class Parser {
     if(type === 'tag') {
       results = $('.tab-content-wrap').find('.page-item-detail.manga')
       for (let result of results.toArray()) {
-      const mangaId = $('h3.h5', result).find('a').first().attr('href')?.split('manga/')[1] ?? ''
+      const mangaId = decodeURI($('h3.h5', result).find('a').first().attr('href') ?? '')?.split('manga/')[1]
+      
       const image = $(result).find('img').first().attr('data-src') ?? ''
       const title = $('h3.h5', result).find('a').first().text().trim() ?? ''
       if (!mangaId || !title) continue
@@ -215,7 +216,7 @@ export class Parser {
       // const id = decodeURI($(link).attr('href')!.split('me/manga-genre/')[1]!)
       const label = $(link).text().toUpperCase().trim()
       const id = label.toUpperCase()
-      if (!id || !label || label == 'ホーム') continue
+      if (!id || !label || label == 'ホーム' || label == 'もっと見る') continue
       // if (!decodeURI($(link).attr('href')!.split('me/')[1]!)?.startsWith('manga-genre')) continue
       tags.push({ id: id, label: label })
     }
