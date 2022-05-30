@@ -401,7 +401,7 @@ const headers = {
 };
 const method = 'GET';
 exports.MangaGohanInfo = {
-    version: '1.0.2',
+    version: '1.1.0',
     name: 'Manga Gohan',
     icon: 'logo.png',
     author: 'btylerh7',
@@ -505,21 +505,18 @@ class MangaGohan extends paperback_extensions_common_1.Source {
             let request;
             if (query.title) {
                 request = createRequestObject({
-                    url: exports.MG_DOMAIN,
-                    param: `/?s=${encodeURI(query.title)}&post_type=wp-manga`,
+                    url: `${exports.MG_DOMAIN}/?s=${encodeURI(query.title)}&post_type=wp-manga`,
                     method,
                     headers,
                 });
             }
-            else {
-                if (query.includedTags)
-                    type = 'tag';
-                request = createRequestObject({
-                    url: `${exports.MG_DOMAIN}/${encodeURI((_b = query.includedTags) === null || _b === void 0 ? void 0 : _b.map((x) => x.id)[0])}`,
-                    method,
-                    headers,
-                });
-            }
+            if (query.includedTags)
+                type = 'tag';
+            request = createRequestObject({
+                url: `${exports.MG_DOMAIN}/manga-genre/${encodeURI((_b = query.includedTags) === null || _b === void 0 ? void 0 : _b.map((x) => x.id)[0])}/page/${page.toString()}`,
+                method,
+                headers,
+            });
             const data = yield this.requestManager.schedule(request, 3);
             this.CloudFlareError(data.status);
             let $ = this.cheerio.load(data.data);
@@ -553,6 +550,7 @@ class MangaGohan extends paperback_extensions_common_1.Source {
                 headers,
             });
             const response = yield this.requestManager.schedule(request, 1);
+            this.CloudFlareError(response.status);
             const $ = this.cheerio.load(response.data);
             return (0, MangaGohanParser_1.parseTags)($);
         });
@@ -643,7 +641,7 @@ const parseChapterDetails = ($, mangaId, chapterId) => {
     const links = $('.reading-content').find('img');
     for (const img of links.toArray()) {
         const page = (_a = img.attribs['data-src']) === null || _a === void 0 ? void 0 : _a.trim();
-        console.log(page);
+        // console.log(page)
         // img.attribs['data-src']?.trim() ?? 
         if (!page)
             continue;
@@ -753,16 +751,16 @@ exports.parseHomeSections = parseHomeSections;
 const parseTags = ($) => {
     var _a;
     const tags = [];
-    const data = $('.sub-menu').find('a');
-    for (const link of data.toArray()) {
-        const id = decodeURI($(link).attr('href').split('com/')[1]);
+    for (const link of $('.container > div > div > ul').find('li > a').toArray()) {
+        const id = decodeURI($(link).attr('href').split('me/manga-genre/')[1]);
         const label = $(link).text().trim();
         if (!id || !label)
             continue;
-        if (!((_a = decodeURI($(link).attr('href').split('com/')[1])) === null || _a === void 0 ? void 0 : _a.startsWith('manga-genre')))
+        if (!((_a = decodeURI($(link).attr('href').split('me/')[1])) === null || _a === void 0 ? void 0 : _a.startsWith('manga-genre')))
             continue;
         tags.push({ id: id, label: label });
     }
+    console.log(tags);
     const tagSection = [
         createTagSection({
             id: '0',
