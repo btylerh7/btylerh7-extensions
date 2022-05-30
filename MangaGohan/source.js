@@ -401,7 +401,7 @@ const headers = {
 };
 const method = 'GET';
 exports.MangaGohanInfo = {
-    version: '1.1.2',
+    version: '1.2.0',
     name: 'Manga Gohan',
     icon: 'logo.png',
     author: 'btylerh7',
@@ -617,7 +617,7 @@ class Parser {
         };
     }
     parseMangaDetails($, mangaId) {
-        var _a, _b;
+        var _a;
         const titles = [(_a = $('.post-title').find('h1').first().text().replace('(Raw - Free)', '').trim()) !== null && _a !== void 0 ? _a : ''];
         const image = $('.summary_image').find('img').attr('data-src');
         let status = paperback_extensions_common_1.MangaStatus.UNKNOWN; //All manga is listed as ongoing
@@ -627,18 +627,17 @@ class Parser {
         const desc = $('.description-summary').find('p').first().text().trim();
         let hentai = false;
         const tags = [];
-        const data = $('.genres-content').find('a');
-        for (const link of data.toArray()) {
-            const id = decodeURI($(link).attr('href').split('.me/')[1]);
+        for (const link of $('.genres-content').find('a').toArray()) {
             const label = $(link).text().trim();
+            const id = label.toUpperCase();
             if (!id || !label)
                 continue;
-            if (!((_b = decodeURI($(link).attr('href').split('com/')[1])) === null || _b === void 0 ? void 0 : _b.startsWith('manga-genre')))
-                continue;
-            if (label === 'manga-genre/hentai/')
+            // if (!decodeURI($(link).attr('href')!.split('com/')[1]!)?.startsWith('manga-genre')) continue
+            if (label === 'HENTAI' || label == 'エロ')
                 hentai = true;
             tags.push({ id: id, label: label });
         }
+        console.log(tags);
         const tagSection = [
             createTagSection({
                 id: '0',
@@ -656,7 +655,8 @@ class Parser {
             artist,
             tags: tagSection,
             desc: desc !== null && desc !== void 0 ? desc : '',
-            hentai
+            hentai,
+            langFlag: 'jp',
         });
     }
     parseChapters($, mangaId) {
@@ -694,7 +694,7 @@ class Parser {
         });
     }
     parseHomeSections($, sectionCallback) {
-        var _a, _b, _c, _d, _e, _f;
+        var _a, _b, _c, _d, _e, _f, _g;
         const featuredSection = createHomeSection({ id: '0', title: 'Featured Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowLarge, view_more: false, });
         const topSection = createHomeSection({ id: '1', title: 'Top Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
         const recentlyUpdatedSection = createHomeSection({ id: '2', title: 'Reccently Updated Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
@@ -729,7 +729,7 @@ class Parser {
         topSection.items = top;
         sectionCallback(topSection);
         for (let recentlyUpdatedManga of $('.main-col-inner.c-page').next().find('.page-item-detail.manga').toArray()) {
-            const mangaId = (_f = $('a', recentlyUpdatedManga).first().attr('href')) === null || _f === void 0 ? void 0 : _f.split('/manga/')[1];
+            const mangaId = (_g = decodeURI((_f = $('a', recentlyUpdatedManga).first().attr('href')) !== null && _f !== void 0 ? _f : '')) === null || _g === void 0 ? void 0 : _g.split('/manga/')[1];
             const title = $(recentlyUpdatedManga).find('h3 > a').first().text().split(' ')[0];
             const image = $(recentlyUpdatedManga).find('img').first().attr('data-src');
             recentlyUpdated.push(createMangaTile({
@@ -744,16 +744,21 @@ class Parser {
         sectionCallback(recentlyUpdatedSection);
     }
     parseTags($) {
-        var _a;
         const tags = [];
         for (const link of $('.container > div > div > ul').find('li > a').toArray()) {
-            const id = decodeURI($(link).attr('href').split('me/manga-genre/')[1]);
-            const label = $(link).text().trim();
-            if (!id || !label)
+            // const id = decodeURI($(link).attr('href')!.split('me/manga-genre/')[1]!)
+            const label = $(link).text().toUpperCase().trim();
+            const id = label.toUpperCase();
+            if (!id || !label || label == 'ホーム')
                 continue;
-            if (!((_a = decodeURI($(link).attr('href').split('me/')[1])) === null || _a === void 0 ? void 0 : _a.startsWith('manga-genre')))
-                continue;
+            // if (!decodeURI($(link).attr('href')!.split('me/')[1]!)?.startsWith('manga-genre')) continue
             tags.push({ id: id, label: label });
+        }
+        const otherIdentifiedTags = [
+            'エロ', 'メンズ',
+        ];
+        for (let tag of otherIdentifiedTags) {
+            tags.push({ id: tag, label: tag });
         }
         console.log(tags);
         const tagSection = [
