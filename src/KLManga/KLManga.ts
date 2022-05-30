@@ -57,10 +57,10 @@ export class KLManga extends Source {
         createCookie({
         name: 'isAdult',
         value: '1',
-        domain: `https://klmag.net`,
+        domain: KLM_DOMAIN,
         }),
     ]
-    override getCloudflareBypassRequest() {
+    override getCloudflareBypassRequest(): any {
         return createRequestObject({
         url: `${KLM_DOMAIN}/rzdz-kimetsu-no-yaiba-raw-chapter-205.5.html`, //CloudFlare is only checked on individual chapters
         method,
@@ -101,7 +101,7 @@ export class KLManga extends Source {
         })
         const data = await this.requestManager.schedule(request, 1)
         this.CloudFlareError(data.status)
-        let $ = this.cheerio.load(data.data)
+        const $ = this.cheerio.load(data.data)
         return parseMangaDetails($, mangaId)
     }
     async getChapters(mangaId: string): Promise<Chapter[]> {
@@ -112,7 +112,7 @@ export class KLManga extends Source {
         })
         const data = await this.requestManager.schedule(request, 1)
         this.CloudFlareError(data.status)
-        let $ = this.cheerio.load(data.data)
+        const $ = this.cheerio.load(data.data)
 
         return parseChapters($, mangaId)
     }
@@ -124,7 +124,7 @@ export class KLManga extends Source {
         })
         const data = await this.requestManager.schedule(request, 1)
         this.CloudFlareError(data.status)
-        let $ = this.cheerio.load(data.data)
+        const $ = this.cheerio.load(data.data)
         const chapterDetails = parseChapterDetails($, mangaId, chapterId)
         if (chapterDetails.pages == []){
             throw new Error('CLOUDFLARE BYPASS ERROR:\nPlease go to Settings > Sources > <The name of this source> and press Cloudflare Bypass')
@@ -145,7 +145,7 @@ export class KLManga extends Source {
         })
         const data = await this.requestManager.schedule(request, 1)
         this.CloudFlareError(data.status)
-        let $ = this.cheerio.load(data.data)
+        const $ = this.cheerio.load(data.data)
         const manga = parseSearchRequest($)
         metadata = manga.length > 0 ? { page: page + 1 } : undefined
 

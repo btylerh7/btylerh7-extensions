@@ -1,15 +1,15 @@
 import {
-	Chapter,
-  	ChapterDetails,
-	HomeSection,
-	HomeSectionType,
-	LanguageCode,
-	Manga,
-	MangaStatus,
-	MangaTile,
-	//PagedResults,
-	// SearchRequest,
-  	// TagSection,
+    Chapter,
+    ChapterDetails,
+    HomeSection,
+    HomeSectionType,
+    LanguageCode,
+    Manga,
+    MangaStatus,
+    MangaTile,
+    //PagedResults,
+    // SearchRequest,
+    // TagSection,
 } from 'paperback-extensions-common'
 
 export const parseMangaDetails = ($: CheerioStatic, mangaId: string): Manga => {
@@ -41,58 +41,58 @@ export const parseMangaDetails = ($: CheerioStatic, mangaId: string): Manga => {
 }
 
 export const parseChapters = ($: CheerioStatic, mangaId: string): Chapter[] => {
-  	const chapters: Chapter[] = []
-  	for (let chapter of $('table.table.table-hover tbody').find('a').toArray()) {
-    	const id = $(chapter).attr('href') ?? ''
-    	const chapNum = $(chapter).attr('title')?.split('Chapter ')[1] ?? 0
+    const chapters: Chapter[] = []
+    for (let chapter of $('table.table.table-hover tbody').find('a').toArray()) {
+        const id = $(chapter).attr('href') ?? ''
+        const chapNum = $(chapter).attr('title')?.split('Chapter ')[1] ?? 0
 
-    	chapters.push(
-      		createChapter({
-        		id,
-        		mangaId,
-        		chapNum: Number(chapNum),
-        		langCode: LanguageCode.JAPANESE,
-      		})
-    	)
-  	}
-  	return chapters
+        chapters.push(
+            createChapter({
+                id,
+                mangaId,
+                chapNum: Number(chapNum),
+                langCode: LanguageCode.JAPANESE,
+            })
+        )
+    }
+    return chapters
 }
 
 export const parseChapterDetails = ($: CheerioStatic, mangaId: string,chapterId: string): ChapterDetails => {
-  	const pages: string[] = []
+    const pages: string[] = []
 
-  	for (const img of $('.chapter-content').find('img').toArray()) {
-    	let page = $(img).attr('data-aload')?.trim() ?? $(img).attr('src')?.trim()
-    	if(!page) continue
-    	pages.push(page)
-  	}
-	return createChapterDetails({
-		id: chapterId,
-		mangaId,
-		pages,
-		longStrip: false,
-	})
+    for (const img of $('.chapter-content').find('img').toArray()) {
+        let page = $(img).attr('data-aload')?.trim() ?? $(img).attr('src')?.trim()
+        if(!page) continue
+        pages.push(page)
+    }
+    return createChapterDetails({
+        id: chapterId,
+        mangaId,
+        pages,
+        longStrip: false,
+    })
 }
 
 export const parseSearchRequest = ($: CheerioStatic) => {
-	const tiles: MangaTile[] = []
+    const tiles: MangaTile[] = []
 
-	for (let result of $('.bodythumb').find('.thumb-item-flow.col-6.col-md-3').toArray()) {
-		const mangaId = $('.thumb-wrapper > a', result).attr('href') ?? ''
-		const image = $('.thumb-wrapper', result).find('.content.img-in-ratio.lazyloaded').attr('data-bg')
-		const title = $('.thumb_attr.series-title', result).find('.title-thumb').text().replace('- Raw', '').trim() ?? ''
+    for (let result of $('.bodythumb').find('.thumb-item-flow.col-6.col-md-3').toArray()) {
+        const mangaId = $('.thumb-wrapper > a', result).attr('href') ?? ''
+        const image = $('.thumb-wrapper', result).find('.content.img-in-ratio.lazyloaded').attr('data-bg')
+        const title = $('.thumb_attr.series-title', result).find('.title-thumb').text().replace('- Raw', '').trim() ?? ''
 
-		tiles.push(
-		createMangaTile({
-			id: mangaId,
-			image: image ?? 'https://i.imgur.com/GYUxEX8.png',
-			title: createIconText({
-			text: title,
-			}),
-		})
-		)
-	}
-	return tiles
+        tiles.push(
+            createMangaTile({
+                id: mangaId,
+                image: image ?? 'https://i.imgur.com/GYUxEX8.png',
+                title: createIconText({
+                text: title,
+                }),
+            })
+        )
+    }
+    return tiles
 }
 
 export const parseHomeSections = ($: CheerioStatic, sectionCallback: (section: HomeSection) => void): void => {
