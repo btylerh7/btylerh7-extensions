@@ -1,5 +1,5 @@
-/* eslint-disable linebreak-style */
-/* eslint-disable @typescript-eslint/indent */
+// /* eslint-disable linebreak-style */
+// /* eslint-disable @typescript-eslint/indent */
 import {
   Chapter,
   ChapterDetails,
