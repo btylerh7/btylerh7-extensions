@@ -24,15 +24,15 @@ export class Parser {
     const desc = $('.description-summary').find('p').first().text().trim()
     let hentai = false
     const tags: Tag[] = []
-    const data = $('.genres-content').find('a')
-    for (const link of data.toArray()) {
-      const id = decodeURI($(link).attr('href')!.split('.me/')[1]!)
+    for (const link of $('.genres-content').find('a').toArray()) {
       const label = $(link).text().trim()
+      const id = label.toUpperCase()
       if (!id || !label) continue
-      if (!decodeURI($(link).attr('href')!.split('com/')[1]!)?.startsWith('manga-genre')) continue
-      if (label === 'manga-genre/hentai/') hentai = true
-      tags.push({ id: id!, label: label })
+      // if (!decodeURI($(link).attr('href')!.split('com/')[1]!)?.startsWith('manga-genre')) continue
+      if (label === 'HENTAI' || label == 'エロ') hentai = true
+      tags.push({ id: id, label: label })
     }
+    console.log(tags)
     const tagSection: TagSection[] = [
       createTagSection({
         id: '0',
@@ -50,7 +50,8 @@ export class Parser {
       artist,
       tags: tagSection,
       desc: desc ?? '',
-      hentai
+      hentai,
+      langFlag: 'jp',
     })
   }
 
@@ -190,7 +191,7 @@ export class Parser {
     
   
     for (let recentlyUpdatedManga of $('.main-col-inner.c-page').next().find('.page-item-detail.manga').toArray()) {
-      const mangaId = $('a', recentlyUpdatedManga).first().attr('href')?.split('/manga/')[1]
+      const mangaId = decodeURI($('a', recentlyUpdatedManga).first().attr('href') ?? '')?.split('/manga/')[1]
       const title = $(recentlyUpdatedManga).find('h3 > a').first().text().split(' ')[0]
       const image = $(recentlyUpdatedManga).find('img').first().attr('data-src')
   
@@ -211,11 +212,18 @@ export class Parser {
     const tags: Tag[] = []
   
     for (const link of $('.container > div > div > ul').find('li > a').toArray()) {
-      const id = decodeURI($(link).attr('href')!.split('me/manga-genre/')[1]!)
-      const label = $(link).text().trim()
-      if (!id || !label) continue
-      if (!decodeURI($(link).attr('href')!.split('me/')[1]!)?.startsWith('manga-genre')) continue
+      // const id = decodeURI($(link).attr('href')!.split('me/manga-genre/')[1]!)
+      const label = $(link).text().toUpperCase().trim()
+      const id = label.toUpperCase()
+      if (!id || !label || label == 'ホーム') continue
+      // if (!decodeURI($(link).attr('href')!.split('me/')[1]!)?.startsWith('manga-genre')) continue
       tags.push({ id: id, label: label })
+    }
+    const otherIdentifiedTags = [
+      'エロ', 'メンズ',
+    ]
+    for (let tag of otherIdentifiedTags){
+      tags.push({id: tag, label: tag})
     }
     console.log(tags)
   
