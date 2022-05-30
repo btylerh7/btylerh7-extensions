@@ -19,7 +19,7 @@ module.exports = {
     'rules': {
         '@typescript-eslint/indent': [
             'error',
-            2
+            4
         ],
         'linebreak-style': [
             'error',
