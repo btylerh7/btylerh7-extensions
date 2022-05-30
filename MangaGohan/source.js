@@ -401,7 +401,7 @@ const headers = {
 };
 const method = 'GET';
 exports.MangaGohanInfo = {
-    version: '1.1.0',
+    version: '1.1.1',
     name: 'Manga Gohan',
     icon: 'logo.png',
     author: 'btylerh7',
@@ -505,7 +505,8 @@ class MangaGohan extends paperback_extensions_common_1.Source {
             let request;
             if (query.title) {
                 request = createRequestObject({
-                    url: `${exports.MG_DOMAIN}/?s=${encodeURI(query.title)}&post_type=wp-manga`,
+                    url: exports.MG_DOMAIN,
+                    param: `/?s=${encodeURI(query.title)}&post_type=wp-manga`,
                     method,
                     headers,
                 });
