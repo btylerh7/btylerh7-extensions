@@ -142,7 +142,7 @@ export class Manga1001 extends Source {
         })
     }
     override async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
-        for (let section of ['top', 'recently updated']){
+        for (const section of ['top', 'recently updated']){
             const url = section == 'top' ? `${M1001_DOMAIN}/?asgtbndr=1` : `${M1001_DOMAIN}/newmanga/?asgtbndr=1`
             const request = createRequestObject({
             url,

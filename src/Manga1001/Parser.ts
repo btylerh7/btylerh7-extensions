@@ -1,4 +1,13 @@
-import { Chapter, ChapterDetails, LanguageCode, HomeSection, HomeSectionType, Manga, MangaStatus, MangaTile } from "paperback-extensions-common";
+import { 
+    Chapter,
+    ChapterDetails,
+    LanguageCode,
+    HomeSection,
+    HomeSectionType,
+    Manga,
+    MangaStatus,
+    MangaTile 
+} from 'paperback-extensions-common'
 
 export class Parser {
     parseMangaDetails($:CheerioStatic, mangaId: string):Manga {
@@ -22,24 +31,24 @@ export class Parser {
 
     parseChapters($:CheerioStatic, mangaId: string): Chapter[]{
         const chapters = []
-        for(let chapterInfo of $('.chaplist').find('a').toArray()) {
+        for(const chapterInfo of $('.chaplist').find('a').toArray()) {
             const id = $(chapterInfo).text().split('Raw ')[1]?.trim() ?? ''
             const chapNum = id?.replace(/第|話|【|】/g, '').trim()
-            // console.log("id:", id, "chapNum:", chapNum)
-            chapters.push(createChapter({
-                id,
-                mangaId,
-                chapNum: Number(chapNum),
-                langCode: LanguageCode.JAPANESE
-            }))
-
+            chapters.push(
+                createChapter({
+                    id,
+                    mangaId,
+                    chapNum: Number(chapNum),
+                    langCode: LanguageCode.JAPANESE
+                })
+            )
         }
-            return chapters
+        return chapters
     }
     parseChapterDetails($:CheerioStatic, mangaId: string, id:string):ChapterDetails{
         const pages = []
         const wrapper = $('div.entry-content')
-        for (let img of $(wrapper).find('img').toArray()) {
+        for (const img of $(wrapper).find('img').toArray()) {
             const image = $(img).attr('src')
             if(!image) continue
             pages.push(image)
@@ -53,7 +62,7 @@ export class Parser {
     }
     parseSearchResults($:CheerioStatic): MangaTile[]{
         const results = []
-        for (let article of $('#main').find('article').toArray()){
+        for (const article of $('#main').find('article').toArray()){
             const image = $(article).find('img').attr('data-src')
             const title = $(article).find('img').attr('alt')?.replace('(Raw – Free)', '').trim() ?? ''
             const mangaId = decodeURI($(article).find('a').attr('href')!)?.split('.top/')[1]?.replace('-raw-–-free/', '').trim() ?? ''

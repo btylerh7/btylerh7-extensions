@@ -42,7 +42,7 @@ export const parseMangaDetails = ($: CheerioStatic, mangaId: string): Manga => {
 
 export const parseChapters = ($: CheerioStatic, mangaId: string): Chapter[] => {
     const chapters: Chapter[] = []
-    for (let chapter of $('table.table.table-hover tbody').find('a').toArray()) {
+    for (const chapter of $('table.table.table-hover tbody').find('a').toArray()) {
         const id = $(chapter).attr('href') ?? ''
         const chapNum = $(chapter).attr('title')?.split('Chapter ')[1] ?? 0
 
@@ -62,7 +62,7 @@ export const parseChapterDetails = ($: CheerioStatic, mangaId: string,chapterId:
     const pages: string[] = []
 
     for (const img of $('.chapter-content').find('img').toArray()) {
-        let page = $(img).attr('data-aload')?.trim() ?? $(img).attr('src')?.trim()
+        const page = $(img).attr('data-aload')?.trim() ?? $(img).attr('src')?.trim()
         if(!page) continue
         pages.push(page)
     }
@@ -77,7 +77,7 @@ export const parseChapterDetails = ($: CheerioStatic, mangaId: string,chapterId:
 export const parseSearchRequest = ($: CheerioStatic) => {
     const tiles: MangaTile[] = []
 
-    for (let result of $('.bodythumb').find('.thumb-item-flow.col-6.col-md-3').toArray()) {
+    for (const result of $('.bodythumb').find('.thumb-item-flow.col-6.col-md-3').toArray()) {
         const mangaId = $('.thumb-wrapper > a', result).attr('href') ?? ''
         const image = $('.thumb-wrapper', result).find('.content.img-in-ratio.lazyloaded').attr('data-bg')
         const title = $('.thumb_attr.series-title', result).find('.title-thumb').text().replace('- Raw', '').trim() ?? ''
@@ -87,7 +87,7 @@ export const parseSearchRequest = ($: CheerioStatic) => {
                 id: mangaId,
                 image: image ?? 'https://i.imgur.com/GYUxEX8.png',
                 title: createIconText({
-                text: title,
+                    text: title,
                 }),
             })
         )
@@ -128,11 +128,12 @@ export const parseHomeSections = ($: CheerioStatic, sectionCallback: (section: H
         const image = $('.thumb-wrapper.tooltipstered > a > div > div', recentlyUpdatedManga).css('background-image')?.replace('url("','').replace('")','').trim()
         const title = $('.thumb_attr.series-title', recentlyUpdatedManga).find('.title-thumb').text().replace('- Raw', '').trim() ?? ''
 
-        recentlyUpdated.push(createMangaTile({
-            id: mangaId,
-            image: image ?? 'https://i.imgur.com/GYUxEX8.png',
-            title: createIconText({
-                text: title
+        recentlyUpdated.push(
+            createMangaTile({
+                id: mangaId,
+                image: image ?? 'https://i.imgur.com/GYUxEX8.png',
+                title: createIconText({
+                    text: title
                 })
             })
         )

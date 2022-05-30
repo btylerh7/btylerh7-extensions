@@ -118,13 +118,13 @@ export class Parser {
             const image = $('.content.img-in-ratio', popularManga).css('background-image').split('url("')[1]?.replace('")','').trim()
       
             popular.push(
-              createMangaTile({
-                id: mangaId!,
-                image: image ?? 'https://i.imgur.com/GYUxEX8.png',
-                title: createIconText({
-                  text: title,
-                }),
-              })
+                createMangaTile({
+                    id: mangaId!,
+                    image: image ?? 'https://i.imgur.com/GYUxEX8.png',
+                    title: createIconText({
+                        text: title,
+                    }),
+                })
             )
         }
         
@@ -141,11 +141,11 @@ export class Parser {
       
             recentlyUpdated.push(
                 createMangaTile({
-                  id: mangaId,
-                  image: image ?? 'https://i.imgur.com/GYUxEX8.png',
-                  title: createIconText({
-                    text: title,
-                  }),
+                    id: mangaId,
+                    image: image ?? 'https://i.imgur.com/GYUxEX8.png',
+                    title: createIconText({
+                        text: title,
+                    }),
                 })
             )
         }
@@ -153,7 +153,7 @@ export class Parser {
         recentlyUpdatedSection.items = recentlyUpdated
         sectionCallback(recentlyUpdatedSection)
       
-        let newMangaDiv = $('.row-last-update').next()
+        const newMangaDiv = $('.row-last-update').next()
         for (const newMangaItem of $('.thumb-item-flow.col-6.col-md-3',newMangaDiv).toArray()) {
             const mangaId = $('a',newMangaItem).attr('href')?.split('/')[1]?.replace('/', '') ?? ''
             if (mangaId == 'manga-list.html?sort=last_update') continue
@@ -172,5 +172,5 @@ export class Parser {
         }
         newMangaSection.items = newManga
         sectionCallback(newMangaSection)
-      }
+    }
 }
