@@ -387,49 +387,45 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MangaGohan = exports.MangaGohanInfo = exports.MG_DOMAIN = void 0;
+exports.KLManga = exports.KLMangaInfo = exports.KLM_DOMAIN = void 0;
 /* eslint-disable linebreak-style */
-/* eslint-disable @typescript-eslint/indent */
 const paperback_extensions_common_1 = require("paperback-extensions-common");
-const MangaGohanParser_1 = require("./MangaGohanParser");
-exports.MG_DOMAIN = 'https://mangagohan.me';
+const KLMangaParser_1 = require("./KLMangaParser");
+exports.KLM_DOMAIN = 'https://klmag.net';
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
 const headers = {
     'content-type': 'application/x-www-form-urlencoded',
-    Referer: 'https://mangagohan.me/?__cf_chl_tk=Vdie6FXxTJZv3.cpvMsRffoLHmwttqIvYSyp79VoXQI-1653012153-0-gaNycGzNCqU',
-    'user-agent': userAgent
+    Referer: exports.KLM_DOMAIN,
 };
 const method = 'GET';
-exports.MangaGohanInfo = {
-    version: '1.1.2',
-    name: 'Manga Gohan',
-    icon: 'logo.png',
+exports.KLMangaInfo = {
+    version: '0.2.0',
+    name: 'KLManga',
+    icon: 'logo.ico',
     author: 'btylerh7',
     authorWebsite: 'https://github.com/btylerh7',
-    description: 'Extension that pulls manga from Manga Gohan',
+    description: 'Extension that pulls manga from KLManga',
     contentRating: paperback_extensions_common_1.ContentRating.EVERYONE,
-    websiteBaseURL: exports.MG_DOMAIN,
+    websiteBaseURL: exports.KLM_DOMAIN,
     sourceTags: [
         {
             text: 'Japanese',
             type: paperback_extensions_common_1.TagType.GREY,
         },
-        // Recently, bypass has not been needed. Could change in future.
-        // {
-        //   text: 'CloudFlare',
-        //   type: TagType.RED,
-        // },
+        {
+            text: 'In Development',
+            type: paperback_extensions_common_1.TagType.YELLOW,
+        }
     ],
 };
-class MangaGohan extends paperback_extensions_common_1.Source {
+class KLManga extends paperback_extensions_common_1.Source {
     constructor() {
         super(...arguments);
-        this.parser = new MangaGohanParser_1.Parser();
         this.cookies = [
             createCookie({
                 name: 'isAdult',
                 value: '1',
-                domain: exports.MG_DOMAIN,
+                domain: `https://klmag.net`,
             }),
         ];
         this.requestManager = createRequestManager({
@@ -440,7 +436,7 @@ class MangaGohan extends paperback_extensions_common_1.Source {
                     var _a;
                     request.headers = Object.assign(Object.assign({}, ((_a = request.headers) !== null && _a !== void 0 ? _a : {})), {
                         'user-agent': userAgent,
-                        'referer': 'https://mangagohan.me/?__cf_chl_tk=Vdie6FXxTJZv3.cpvMsRffoLHmwttqIvYSyp79VoXQI-1653012153-0-gaNycGzNCqU'
+                        'referer': exports.KLM_DOMAIN
                     });
                     return request;
                 }),
@@ -452,112 +448,93 @@ class MangaGohan extends paperback_extensions_common_1.Source {
     }
     getCloudflareBypassRequest() {
         return createRequestObject({
-            url: `${exports.MG_DOMAIN}`,
+            url: `${exports.KLM_DOMAIN}/rzdz-kimetsu-no-yaiba-raw-chapter-205.5.html`,
             method,
             headers,
         });
     }
     getMangaShareUrl(mangaId) {
-        return `${exports.MG_DOMAIN}/manga/${mangaId}`;
+        return `${exports.KLM_DOMAIN}/${mangaId}`;
     }
     getMangaDetails(mangaId) {
         return __awaiter(this, void 0, void 0, function* () {
             const request = createRequestObject({
-                url: encodeURI(`${exports.MG_DOMAIN}/manga/${mangaId}`),
+                url: `${exports.KLM_DOMAIN}/${mangaId}`,
                 method,
                 headers,
             });
-            const data = yield this.requestManager.schedule(request, 3);
+            const data = yield this.requestManager.schedule(request, 1);
             this.CloudFlareError(data.status);
             let $ = this.cheerio.load(data.data);
-            return this.parser.parseMangaDetails($, mangaId);
+            return (0, KLMangaParser_1.parseMangaDetails)($, mangaId);
         });
     }
     getChapters(mangaId) {
         return __awaiter(this, void 0, void 0, function* () {
             const request = createRequestObject({
-                url: encodeURI(`${exports.MG_DOMAIN}/manga/${mangaId}`),
+                url: `${exports.KLM_DOMAIN}/${mangaId}`,
                 method,
                 headers,
             });
-            const data = yield this.requestManager.schedule(request, 3);
+            const data = yield this.requestManager.schedule(request, 1);
             this.CloudFlareError(data.status);
             let $ = this.cheerio.load(data.data);
-            return this.parser.parseChapters($, mangaId);
+            return (0, KLMangaParser_1.parseChapters)($, mangaId);
         });
     }
     getChapterDetails(mangaId, chapterId) {
         return __awaiter(this, void 0, void 0, function* () {
             const request = createRequestObject({
-                url: encodeURI(`${exports.MG_DOMAIN}/manga/${mangaId}/${chapterId}/`),
+                url: `${exports.KLM_DOMAIN}/${chapterId}`,
                 method,
                 headers,
             });
-            const data = yield this.requestManager.schedule(request, 3);
+            const data = yield this.requestManager.schedule(request, 1);
             this.CloudFlareError(data.status);
             let $ = this.cheerio.load(data.data);
-            return this.parser.parseChapterDetails($, mangaId, chapterId);
+            const chapterDetails = (0, KLMangaParser_1.parseChapterDetails)($, mangaId, chapterId);
+            if (chapterDetails.pages == []) {
+                throw new Error('CLOUDFLARE BYPASS ERROR:\nPlease go to Settings > Sources > <The name of this source> and press Cloudflare Bypass');
+            }
+            return chapterDetails;
         });
     }
     getSearchResults(query, metadata) {
-        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            let page = (_a = metadata === null || metadata === void 0 ? void 0 : metadata.page) !== null && _a !== void 0 ? _a : 1;
-            let type = 'title';
-            let request;
-            if (query.title) {
-                request = createRequestObject({
-                    url: exports.MG_DOMAIN,
-                    param: `/?s=${encodeURI(query.title)}&post_type=wp-manga`,
-                    method,
-                    headers,
-                });
+            let page;
+            if (metadata && metadata.page) {
+                page = metadata.page;
             }
             else {
-                if (query.includedTags)
-                    type = 'tag';
-                request = createRequestObject({
-                    url: `${exports.MG_DOMAIN}/manga-genre/${encodeURI((_b = query.includedTags) === null || _b === void 0 ? void 0 : _b.map((x) => x.id)[0])}/page/${page.toString()}`,
-                    method,
-                    headers,
-                });
+                page = 1;
             }
-            const data = yield this.requestManager.schedule(request, 3);
+            const request = createRequestObject({
+                url: encodeURI(`${exports.KLM_DOMAIN}/manga-list.html${page > 1 && `?listType=pagination&page=${page}`}?name=${query.title}`),
+                method,
+                headers,
+            });
+            const data = yield this.requestManager.schedule(request, 1);
             this.CloudFlareError(data.status);
             let $ = this.cheerio.load(data.data);
-            const manga = this.parser.parseSearchRequest($, type);
+            const manga = (0, KLMangaParser_1.parseSearchRequest)($);
             metadata = manga.length > 0 ? { page: page + 1 } : undefined;
-            // metadata = page
             return createPagedResults({
                 results: manga,
-                metadata
+                metadata,
             });
         });
     }
     getHomePageSections(sectionCallback) {
         return __awaiter(this, void 0, void 0, function* () {
             const request = createRequestObject({
-                url: exports.MG_DOMAIN,
+                url: exports.KLM_DOMAIN,
                 method,
                 headers,
             });
             const response = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(response.data);
             this.CloudFlareError(response.status);
-            this.parser.parseHomeSections($, sectionCallback);
-        });
-    }
-    getSearchTags() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const request = createRequestObject({
-                url: exports.MG_DOMAIN,
-                method,
-                headers,
-            });
-            const response = yield this.requestManager.schedule(request, 1);
-            this.CloudFlareError(response.status);
-            const $ = this.cheerio.load(response.data);
-            return this.parser.parseTags($);
+            (0, KLMangaParser_1.parseHomeSections)($, sectionCallback);
         });
     }
     CloudFlareError(status) {
@@ -566,207 +543,133 @@ class MangaGohan extends paperback_extensions_common_1.Source {
         }
     }
 }
-exports.MangaGohan = MangaGohan;
+exports.KLManga = KLManga;
 
-},{"./MangaGohanParser":49,"paperback-extensions-common":5}],49:[function(require,module,exports){
+},{"./KLMangaParser":49,"paperback-extensions-common":5}],49:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Parser = void 0;
+exports.parseHomeSections = exports.parseSearchRequest = exports.parseChapterDetails = exports.parseChapters = exports.parseMangaDetails = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
-class Parser {
-    constructor() {
-        this.parseSearchRequest = ($, type) => {
-            var _a, _b, _c, _d, _e, _f, _g;
-            const tiles = [];
-            let results;
-            //If serch is a title
-            if (type === 'title') {
-                results = $('.tab-content-wrap').find('.row.c-tabs-item__content');
-                for (let result of results.toArray()) {
-                    // const id = article.attribs.class[0].split('-')[1]
-                    const mangaId = (_b = (_a = $(result).find('.h4').find('a').first().attr('href')) === null || _a === void 0 ? void 0 : _a.split('manga/')[1]) !== null && _b !== void 0 ? _b : '';
-                    const image = $('.tab-thumb.c-image-hover > a > img', result).attr('data-src');
-                    const title = (_c = $(result).find('.h4').first().text().replace(/(Raw-Free)/g, '').trim()) !== null && _c !== void 0 ? _c : '';
-                    tiles.push(createMangaTile({
-                        id: mangaId,
-                        image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
-                        title: createIconText({
-                            text: title,
-                        }),
-                    }));
-                }
-            }
-            if (type === 'tag') {
-                results = $('.tab-content-wrap').find('.page-item-detail.manga');
-                for (let result of results.toArray()) {
-                    const mangaId = (_e = (_d = $('h3.h5', result).find('a').first().attr('href')) === null || _d === void 0 ? void 0 : _d.split('manga/')[1]) !== null && _e !== void 0 ? _e : '';
-                    const image = (_f = $(result).find('img').first().attr('data-src')) !== null && _f !== void 0 ? _f : '';
-                    const title = (_g = $('h3.h5', result).find('a').first().text().trim()) !== null && _g !== void 0 ? _g : '';
-                    if (!mangaId || !title)
-                        continue;
-                    tiles.push(createMangaTile({
-                        id: mangaId,
-                        image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
-                        title: createIconText({
-                            text: title,
-                        }),
-                    }));
-                }
-            }
-            return tiles;
-        };
+const parseMangaDetails = ($, mangaId) => {
+    var _a, _b;
+    const image = $('.thumbnail').attr('src');
+    const titles = [];
+    const title = (_a = $('.manga-info > h3').text().replace('- RAW', '').trim()) !== null && _a !== void 0 ? _a : '';
+    titles.push(title);
+    const rating = 0;
+    const statusText = $('btn.btn-xs.btn-success').text();
+    let status;
+    if (statusText) {
+        status = statusText === 'Incomplete' ? paperback_extensions_common_1.MangaStatus.ONGOING : paperback_extensions_common_1.MangaStatus.COMPLETED;
     }
-    parseMangaDetails($, mangaId) {
-        var _a, _b;
-        const titles = [(_a = $('.post-title').find('h1').first().text().replace('(Raw - Free)', '').trim()) !== null && _a !== void 0 ? _a : ''];
-        const image = $('.summary_image').find('img').attr('data-src');
-        let status = paperback_extensions_common_1.MangaStatus.UNKNOWN; //All manga is listed as ongoing
-        const author = $('.author-content').find('a').first().text();
-        const artist = $('.artist-content').find('a').first().text();
-        const rating = Number($('.score.font-meta.total_votes').text());
-        const desc = $('.description-summary').find('p').first().text().trim();
-        let hentai = false;
-        const tags = [];
-        const data = $('.genres-content').find('a');
-        for (const link of data.toArray()) {
-            const id = decodeURI($(link).attr('href').split('.me/')[1]);
-            const label = $(link).text().trim();
-            if (!id || !label)
-                continue;
-            if (!((_b = decodeURI($(link).attr('href').split('com/')[1])) === null || _b === void 0 ? void 0 : _b.startsWith('manga-genre')))
-                continue;
-            if (label === 'manga-genre/hentai/')
-                hentai = true;
-            tags.push({ id: id, label: label });
-        }
-        const tagSection = [
-            createTagSection({
-                id: '0',
-                label: 'genres',
-                tags: tags.map((tag) => createTag(tag)),
-            }),
-        ];
-        return createManga({
-            id: mangaId,
-            titles,
-            image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
-            rating: rating !== null && rating !== void 0 ? rating : 0,
-            status,
-            author,
-            artist,
-            tags: tagSection,
-            desc: desc !== null && desc !== void 0 ? desc : '',
-            hentai
-        });
+    else {
+        status = paperback_extensions_common_1.MangaStatus.UNKNOWN;
     }
-    parseChapters($, mangaId) {
-        const chapters = [];
-        const chapterLinks = $('.page-content-listing.single-page').find('li');
-        for (let href of chapterLinks.toArray()) {
-            const chapNum = $('a', href).text().replace(/第|話/g, '').trim();
-            const id = `第${chapNum}話`;
-            chapters.push(createChapter({
-                id,
-                mangaId,
-                chapNum: Number(chapNum),
-                langCode: paperback_extensions_common_1.LanguageCode.JAPANESE,
-            }));
-        }
-        return chapters;
-    }
-    parseChapterDetails($, mangaId, chapterId) {
-        var _a;
-        const pages = [];
-        const links = $('.reading-content').find('img');
-        for (const img of links.toArray()) {
-            const page = (_a = img.attribs['data-src']) === null || _a === void 0 ? void 0 : _a.trim();
-            // console.log(page)
-            // img.attribs['data-src']?.trim() ?? 
-            if (!page)
-                continue;
-            pages.push(page);
-        }
-        return createChapterDetails({
-            id: chapterId,
+    let desc = $('div.row').find('p').text();
+    if (desc == '')
+        desc = (_b = $('div.row').find('p').next().text()) !== null && _b !== void 0 ? _b : '';
+    return createManga({
+        id: mangaId,
+        titles: titles,
+        image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
+        status,
+        desc,
+        rating,
+    });
+};
+exports.parseMangaDetails = parseMangaDetails;
+const parseChapters = ($, mangaId) => {
+    var _a, _b, _c;
+    const chapters = [];
+    for (let chapter of $('table.table.table-hover tbody').find('a').toArray()) {
+        const id = (_a = $(chapter).attr('href')) !== null && _a !== void 0 ? _a : '';
+        const chapNum = (_c = (_b = $(chapter).attr('title')) === null || _b === void 0 ? void 0 : _b.split('Chapter ')[1]) !== null && _c !== void 0 ? _c : 0;
+        chapters.push(createChapter({
+            id,
             mangaId,
-            pages,
-            longStrip: false,
-        });
+            chapNum: Number(chapNum),
+            langCode: paperback_extensions_common_1.LanguageCode.JAPANESE,
+        }));
     }
-    parseHomeSections($, sectionCallback) {
-        var _a, _b, _c, _d, _e, _f;
-        const featuredSection = createHomeSection({ id: '0', title: 'Featured Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowLarge, view_more: false, });
-        const topSection = createHomeSection({ id: '1', title: 'Top Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
-        const recentlyUpdatedSection = createHomeSection({ id: '2', title: 'Reccently Updated Manga', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
-        const featured = [];
-        const top = [];
-        const recentlyUpdated = [];
-        //Retrieve Featured Manga Section
-        for (let featuredManga of $('.popular-slider.style-1').find('.slider__item').toArray()) {
-            const mangaId = (_b = (_a = decodeURI($('.slider__content', featuredManga).find('a').first().attr('href'))) === null || _a === void 0 ? void 0 : _a.split('/manga/')[1]) !== null && _b !== void 0 ? _b : '';
-            const title = (_c = $('h4', featuredManga).find('a').first().text().replace(/(Raw-Free)/g, '').trim()) !== null && _c !== void 0 ? _c : '';
-            const image = $('.slider__thumb', featuredManga).find('img').first().attr('data-src');
-            featured.push(createMangaTile({
-                id: mangaId,
-                image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
-                title: createIconText({ text: title, }),
-            }));
-        }
-        featuredSection.items = featured;
-        sectionCallback(featuredSection);
-        for (let topManga of $('.c-blog__content').first().find('.page-item-detail.manga').toArray()) {
-            const mangaId = decodeURI((_d = $('a', topManga).first().attr('href').split('/manga/')[1]) !== null && _d !== void 0 ? _d : '');
-            const title = (_e = $(topManga).find('h3 > a').first().text().split(' ')[0]) !== null && _e !== void 0 ? _e : '';
-            const image = $(topManga).find('img').first().attr('src');
-            top.push(createMangaTile({
-                id: mangaId,
-                image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
-                title: createIconText({
-                    text: title,
-                }),
-            }));
-        }
-        topSection.items = top;
-        sectionCallback(topSection);
-        for (let recentlyUpdatedManga of $('.main-col-inner.c-page').next().find('.page-item-detail.manga').toArray()) {
-            const mangaId = (_f = $('a', recentlyUpdatedManga).first().attr('href')) === null || _f === void 0 ? void 0 : _f.split('/manga/')[1];
-            const title = $(recentlyUpdatedManga).find('h3 > a').first().text().split(' ')[0];
-            const image = $(recentlyUpdatedManga).find('img').first().attr('data-src');
-            recentlyUpdated.push(createMangaTile({
-                id: mangaId,
-                image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
-                title: createIconText({
-                    text: title,
-                }),
-            }));
-        }
-        recentlyUpdatedSection.items = recentlyUpdated;
-        sectionCallback(recentlyUpdatedSection);
+    return chapters;
+};
+exports.parseChapters = parseChapters;
+const parseChapterDetails = ($, mangaId, chapterId) => {
+    var _a, _b, _c;
+    const pages = [];
+    for (const img of $('.chapter-content').find('img').toArray()) {
+        let page = (_b = (_a = $(img).attr('data-aload')) === null || _a === void 0 ? void 0 : _a.trim()) !== null && _b !== void 0 ? _b : (_c = $(img).attr('src')) === null || _c === void 0 ? void 0 : _c.trim();
+        if (!page)
+            continue;
+        pages.push(page);
     }
-    parseTags($) {
-        var _a;
-        const tags = [];
-        for (const link of $('.container > div > div > ul').find('li > a').toArray()) {
-            const id = decodeURI($(link).attr('href').split('me/manga-genre/')[1]);
-            const label = $(link).text().trim();
-            if (!id || !label)
-                continue;
-            if (!((_a = decodeURI($(link).attr('href').split('me/')[1])) === null || _a === void 0 ? void 0 : _a.startsWith('manga-genre')))
-                continue;
-            tags.push({ id: id, label: label });
-        }
-        console.log(tags);
-        const tagSection = [
-            createTagSection({
-                id: '0',
-                label: 'genres',
-                tags: tags.map((tag) => createTag(tag)),
+    return createChapterDetails({
+        id: chapterId,
+        mangaId,
+        pages,
+        longStrip: false,
+    });
+};
+exports.parseChapterDetails = parseChapterDetails;
+const parseSearchRequest = ($) => {
+    var _a, _b;
+    const tiles = [];
+    for (let result of $('.bodythumb').find('.thumb-item-flow.col-6.col-md-3').toArray()) {
+        const mangaId = (_a = $('.thumb-wrapper > a', result).attr('href')) !== null && _a !== void 0 ? _a : '';
+        const image = $('.thumb-wrapper', result).find('.content.img-in-ratio.lazyloaded').attr('data-bg');
+        const title = (_b = $('.thumb_attr.series-title', result).find('.title-thumb').text().replace('- Raw', '').trim()) !== null && _b !== void 0 ? _b : '';
+        tiles.push(createMangaTile({
+            id: mangaId,
+            image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
+            title: createIconText({
+                text: title,
             }),
-        ];
-        return tagSection;
+        }));
     }
-}
-exports.Parser = Parser;
+    return tiles;
+};
+exports.parseSearchRequest = parseSearchRequest;
+const parseHomeSections = ($, sectionCallback) => {
+    var _a, _b, _c, _d, _e, _f;
+    const topSection = createHomeSection({ id: '0', title: 'Top Today', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
+    const recentlyUpdatedSection = createHomeSection({ id: '1', title: 'LatestRelease', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
+    const top = [];
+    const recentlyUpdated = [];
+    const divArray = $('.owl-stage');
+    console.log($('div', divArray).toArray());
+    for (let topManga of $('div', divArray).toArray()) {
+        const image = (_a = $(topManga).find('div.content.img-in-ratio').css('background-image')) === null || _a === void 0 ? void 0 : _a.replace('url("', '').replace('")', '').trim();
+        console.log(image);
+        const title = (_b = $(topManga).find('.thumb_attr.series-title > a').text().replace('- Raw', '').trim()) !== null && _b !== void 0 ? _b : '';
+        const mangaId = (_c = $(topManga).find('.thumb_attr.series-title > a').attr('href')) !== null && _c !== void 0 ? _c : '';
+        top.push(createMangaTile({
+            id: mangaId,
+            image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
+            title: createIconText({
+                text: title,
+            }),
+        }));
+    }
+    topSection.items = top;
+    sectionCallback(topSection);
+    for (let recentlyUpdatedManga of $('.bodythumb').find('.thumb-item-flow.col-6.col-md-3').toArray()) {
+        const mangaId = (_d = $('.thumb_attr.series-title > a', recentlyUpdatedManga).attr('href')) !== null && _d !== void 0 ? _d : '';
+        if (mangaId == '')
+            continue;
+        const image = (_e = $('.thumb-wrapper.tooltipstered > a > div > div', recentlyUpdatedManga).css('background-image')) === null || _e === void 0 ? void 0 : _e.replace('url("', '').replace('")', '').trim();
+        const title = (_f = $('.thumb_attr.series-title', recentlyUpdatedManga).find('.title-thumb').text().replace('- Raw', '').trim()) !== null && _f !== void 0 ? _f : '';
+        recentlyUpdated.push(createMangaTile({
+            id: mangaId,
+            image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
+            title: createIconText({
+                text: title
+            })
+        }));
+    }
+    recentlyUpdatedSection.items = recentlyUpdated;
+    sectionCallback(recentlyUpdatedSection);
+};
+exports.parseHomeSections = parseHomeSections;
 
 },{"paperback-extensions-common":5}]},{},[48])(48)
 });
