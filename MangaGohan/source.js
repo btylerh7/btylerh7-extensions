@@ -401,7 +401,7 @@ const headers = {
 };
 const method = 'GET';
 exports.MangaGohanInfo = {
-    version: '1.2.1',
+    version: '1.2.2',
     name: 'Manga Gohan',
     icon: 'logo.png',
     author: 'btylerh7',
@@ -573,6 +573,7 @@ exports.MangaGohan = MangaGohan;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Parser = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
+'(Raw – Free)';
 class Parser {
     constructor() {
         this.parseSearchRequest = ($, type) => {
@@ -618,7 +619,7 @@ class Parser {
     }
     parseMangaDetails($, mangaId) {
         var _a;
-        const titles = [(_a = $('.post-title').find('h1').first().text().replace('(Raw - Free)', '').trim()) !== null && _a !== void 0 ? _a : ''];
+        const titles = [(_a = $('.post-title').find('h1').first().text().replace(/\(Raw .+\)/, '').trim()) !== null && _a !== void 0 ? _a : ''];
         const image = $('.summary_image').find('img').attr('data-src');
         let status = paperback_extensions_common_1.MangaStatus.UNKNOWN; //All manga is listed as ongoing
         const author = $('.author-content').find('a').first().text();
