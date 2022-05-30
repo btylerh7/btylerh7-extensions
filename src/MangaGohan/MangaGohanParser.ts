@@ -13,9 +13,11 @@ import {
   Tag,
 } from 'paperback-extensions-common'
 
+'(Raw – Free)'
+
 export class Parser {
   parseMangaDetails($: CheerioStatic, mangaId: string): Manga {
-    const titles= [$('.post-title').find('h1').first().text().replace('(Raw - Free)', '').trim() ?? '']
+    const titles= [$('.post-title').find('h1').first().text().replace(/\(Raw .+\)/, '').trim() ?? '']
     const image = $('.summary_image').find('img').attr('data-src')
     let status = MangaStatus.UNKNOWN //All manga is listed as ongoing
     const author = $('.author-content').find('a').first().text()

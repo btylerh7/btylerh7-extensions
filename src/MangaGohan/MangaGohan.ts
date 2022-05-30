@@ -5,17 +5,13 @@ import {
   ChapterDetails,
   ContentRating,
   HomeSection,
-  // LanguageCode,
   Manga,
-  // MangaUpdates,
   PagedResults,
   SearchRequest,
-  // Section,
   Source,
   Request,
   Response,
   SourceInfo,
-  // RequestHeaders,
   TagType,
   TagSection,
 } from 'paperback-extensions-common'
@@ -32,7 +28,7 @@ const headers = {
 const method = 'GET'
 
 export const MangaGohanInfo: SourceInfo = {
-  version: '1.2.1',
+  version: '1.2.2',
   name: 'Manga Gohan',
   icon: 'logo.png',
   author: 'btylerh7',
