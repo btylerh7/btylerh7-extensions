@@ -401,7 +401,7 @@ const headers = {
 };
 const method = 'GET';
 exports.MangaGohanInfo = {
-    version: '1.2.0',
+    version: '1.2.1',
     name: 'Manga Gohan',
     icon: 'logo.png',
     author: 'btylerh7',
@@ -599,7 +599,7 @@ class Parser {
             if (type === 'tag') {
                 results = $('.tab-content-wrap').find('.page-item-detail.manga');
                 for (let result of results.toArray()) {
-                    const mangaId = (_e = (_d = $('h3.h5', result).find('a').first().attr('href')) === null || _d === void 0 ? void 0 : _d.split('manga/')[1]) !== null && _e !== void 0 ? _e : '';
+                    const mangaId = (_e = decodeURI((_d = $('h3.h5', result).find('a').first().attr('href')) !== null && _d !== void 0 ? _d : '')) === null || _e === void 0 ? void 0 : _e.split('manga/')[1];
                     const image = (_f = $(result).find('img').first().attr('data-src')) !== null && _f !== void 0 ? _f : '';
                     const title = (_g = $('h3.h5', result).find('a').first().text().trim()) !== null && _g !== void 0 ? _g : '';
                     if (!mangaId || !title)
@@ -749,7 +749,7 @@ class Parser {
             // const id = decodeURI($(link).attr('href')!.split('me/manga-genre/')[1]!)
             const label = $(link).text().toUpperCase().trim();
             const id = label.toUpperCase();
-            if (!id || !label || label == 'ホーム')
+            if (!id || !label || label == 'ホーム' || label == 'もっと見る')
                 continue;
             // if (!decodeURI($(link).attr('href')!.split('me/')[1]!)?.startsWith('manga-genre')) continue
             tags.push({ id: id, label: label });
