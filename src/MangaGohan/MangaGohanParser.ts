@@ -186,7 +186,7 @@ export class Parser {
         
     
         for (const recentlyUpdatedManga of $('.main-col-inner.c-page').next().find('.page-item-detail.manga').toArray()) {
-            const mangaId = decodeURI($('a', recentlyUpdatedManga).first().attr('href') ?? '')?.split('/manga/')[1]
+            const mangaId = $('a', recentlyUpdatedManga).first().attr('href')?.split('/manga/')[1]
             const title = $(recentlyUpdatedManga).find('h3 > a').first().text().split(' ')[0]
             const image = $(recentlyUpdatedManga).find('img').first().attr('data-src')
         
