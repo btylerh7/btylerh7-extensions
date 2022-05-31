@@ -82,7 +82,7 @@ export class Parser {
 
         if(sectionTitle == 'top'){
             const top = []
-            for (let topManga of $('#main').find('article').toArray()){
+            for (const topManga of $('#main').find('article').toArray()){
                 const image = $(topManga).find('img').attr('data-src')
                 const title = $(topManga).find('img').attr('alt')?.replace('(Raw – Free)', '').trim() ?? ''
                 const mangaId = decodeURI($(topManga).find('a').attr('href')!)?.split('.top/')[1]?.replace('-raw-–-free/', '').trim() ?? ''
@@ -99,7 +99,7 @@ export class Parser {
         }
         if(sectionTitle == 'recently updated'){
             const recentlyUpdated = []
-            for (let recentlyUpdatedManga of $('#main').find('article').toArray()){
+            for (const recentlyUpdatedManga of $('#main').find('article').toArray()){
                 const image = $(recentlyUpdatedManga).find('img').attr('src')
                 const title = $(recentlyUpdatedManga).find('img').attr('alt')?.replace('(Raw – Free)', '').trim() ?? ''
                 const mangaId = $(recentlyUpdatedManga).find('img').attr('alt')?.replace('(Raw – Free)', '').trim() ?? ''
