@@ -21,7 +21,7 @@ const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) Appl
 const method = 'GET'
 
 export const MangaGohanInfo: SourceInfo = {
-    version: '1.2.2',
+    version: '1.2.3',
     name: 'Manga Gohan',
     icon: 'logo.png',
     author: 'btylerh7',
