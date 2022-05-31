@@ -393,10 +393,6 @@ exports.Manga1001 = exports.Manga1001Info = exports.M1001_DOMAIN = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
 const Parser_1 = require("./Parser");
 exports.M1001_DOMAIN = 'https://manga1001.top';
-const headers = {
-    'content-type': 'application/x-www-form-urlencoded',
-    Referer: exports.M1001_DOMAIN,
-};
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
 exports.Manga1001Info = {
     version: '1.1.0',
@@ -447,7 +443,6 @@ class Manga1001 extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: encodeURI(`${exports.M1001_DOMAIN}/${mangaId}-raw-–-free/?asgtbndr=1`),
                 method: 'GET',
-                headers
             });
             const response = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(response.data);
@@ -459,7 +454,6 @@ class Manga1001 extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: encodeURI(`${exports.M1001_DOMAIN}/${mangaId}-raw-–-free/?asgtbndr=1`),
                 method: 'GET',
-                headers
             });
             const response = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(response.data);
@@ -471,7 +465,6 @@ class Manga1001 extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: encodeURI(`${exports.M1001_DOMAIN}/${mangaId}-–-raw-${chapterId}/?asgtbndr=1`),
                 method: 'GET',
-                headers
             });
             const response = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(response.data);
@@ -487,7 +480,6 @@ class Manga1001 extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: `${exports.M1001_DOMAIN}/?s=${encodeURI(((_b = query.title) !== null && _b !== void 0 ? _b : '')).replace(/ /g, '+')}`,
                 method: 'GET',
-                headers
             });
             const data = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(data.data);
@@ -508,7 +500,6 @@ class Manga1001 extends paperback_extensions_common_1.Source {
                 const request = createRequestObject({
                     url,
                     method: 'GET',
-                    headers,
                 });
                 const response = yield this.requestManager.schedule(request, 1);
                 const $ = this.cheerio.load(response.data);

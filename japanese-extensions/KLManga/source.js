@@ -394,10 +394,6 @@ const paperback_extensions_common_1 = require("paperback-extensions-common");
 const KLMangaParser_1 = require("./KLMangaParser");
 exports.KLM_DOMAIN = 'https://klmag.net';
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
-const headers = {
-    'content-type': 'application/x-www-form-urlencoded',
-    Referer: exports.KLM_DOMAIN,
-};
 const method = 'GET';
 exports.KLMangaInfo = {
     version: '0.2.0',
@@ -451,7 +447,6 @@ class KLManga extends paperback_extensions_common_1.Source {
         return createRequestObject({
             url: `${exports.KLM_DOMAIN}/rzdz-kimetsu-no-yaiba-raw-chapter-205.5.html`,
             method,
-            headers,
         });
     }
     getMangaShareUrl(mangaId) {
@@ -462,7 +457,6 @@ class KLManga extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: `${exports.KLM_DOMAIN}/${mangaId}`,
                 method,
-                headers,
             });
             const data = yield this.requestManager.schedule(request, 1);
             this.CloudFlareError(data.status);
@@ -475,7 +469,6 @@ class KLManga extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: `${exports.KLM_DOMAIN}/${mangaId}`,
                 method,
-                headers,
             });
             const data = yield this.requestManager.schedule(request, 1);
             this.CloudFlareError(data.status);
@@ -488,7 +481,6 @@ class KLManga extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: `${exports.KLM_DOMAIN}/${chapterId}`,
                 method,
-                headers,
             });
             const data = yield this.requestManager.schedule(request, 1);
             this.CloudFlareError(data.status);
@@ -512,7 +504,6 @@ class KLManga extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: encodeURI(`${exports.KLM_DOMAIN}/manga-list.html${page > 1 && `?listType=pagination&page=${page}`}?name=${query.title}`),
                 method,
-                headers,
             });
             const data = yield this.requestManager.schedule(request, 1);
             this.CloudFlareError(data.status);
@@ -530,7 +521,6 @@ class KLManga extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: exports.KLM_DOMAIN,
                 method,
-                headers,
             });
             const response = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(response.data);

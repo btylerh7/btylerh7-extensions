@@ -392,11 +392,6 @@ const paperback_extensions_common_1 = require("paperback-extensions-common");
 const MangaGohanParser_1 = require("./MangaGohanParser");
 exports.MG_DOMAIN = 'https://mangagohan.me';
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
-const headers = {
-    'content-type': 'application/x-www-form-urlencoded',
-    Referer: 'https://mangagohan.me/?__cf_chl_tk=Vdie6FXxTJZv3.cpvMsRffoLHmwttqIvYSyp79VoXQI-1653012153-0-gaNycGzNCqU',
-    'user-agent': userAgent
-};
 const method = 'GET';
 exports.MangaGohanInfo = {
     version: '1.2.2',
@@ -452,7 +447,6 @@ class MangaGohan extends paperback_extensions_common_1.Source {
         return createRequestObject({
             url: `${exports.MG_DOMAIN}`,
             method,
-            headers,
         });
     }
     getMangaShareUrl(mangaId) {
@@ -463,7 +457,6 @@ class MangaGohan extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: encodeURI(`${exports.MG_DOMAIN}/manga/${mangaId}`),
                 method,
-                headers,
             });
             const data = yield this.requestManager.schedule(request, 3);
             this.CloudFlareError(data.status);
@@ -476,7 +469,6 @@ class MangaGohan extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: encodeURI(`${exports.MG_DOMAIN}/manga/${mangaId}`),
                 method,
-                headers,
             });
             const data = yield this.requestManager.schedule(request, 3);
             this.CloudFlareError(data.status);
@@ -489,7 +481,6 @@ class MangaGohan extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: encodeURI(`${exports.MG_DOMAIN}/manga/${mangaId}/${chapterId}/`),
                 method,
-                headers,
             });
             const data = yield this.requestManager.schedule(request, 3);
             this.CloudFlareError(data.status);
@@ -508,7 +499,6 @@ class MangaGohan extends paperback_extensions_common_1.Source {
                     url: exports.MG_DOMAIN,
                     param: `/?s=${encodeURI(query.title)}&post_type=wp-manga`,
                     method,
-                    headers,
                 });
             }
             else {
@@ -517,7 +507,6 @@ class MangaGohan extends paperback_extensions_common_1.Source {
                 request = createRequestObject({
                     url: `${exports.MG_DOMAIN}/manga-genre/${encodeURI((_b = query.includedTags) === null || _b === void 0 ? void 0 : _b.map((x) => x.id)[0])}/page/${page.toString()}`,
                     method,
-                    headers,
                 });
             }
             const data = yield this.requestManager.schedule(request, 3);
@@ -537,7 +526,6 @@ class MangaGohan extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: exports.MG_DOMAIN,
                 method,
-                headers,
             });
             const response = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(response.data);
@@ -550,7 +538,6 @@ class MangaGohan extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: exports.MG_DOMAIN,
                 method,
-                headers,
             });
             const response = yield this.requestManager.schedule(request, 1);
             this.CloudFlareError(response.status);
