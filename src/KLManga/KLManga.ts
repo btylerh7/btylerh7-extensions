@@ -25,10 +25,6 @@ import {
 
 export const KLM_DOMAIN = 'https://klmag.net'
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
-const headers = {
-  'content-type': 'application/x-www-form-urlencoded',
-  Referer: KLM_DOMAIN,
-}
 const method = 'GET'
 
 export const KLMangaInfo: SourceInfo = {
@@ -64,7 +60,6 @@ export class KLManga extends Source {
         return createRequestObject({
         url: `${KLM_DOMAIN}/rzdz-kimetsu-no-yaiba-raw-chapter-205.5.html`, //CloudFlare is only checked on individual chapters
         method,
-        headers,
         })
     }
     requestManager = createRequestManager({
@@ -97,7 +92,6 @@ export class KLManga extends Source {
         const request = createRequestObject({
             url: `${KLM_DOMAIN}/${mangaId}`,
             method,
-            headers,
         })
         const data = await this.requestManager.schedule(request, 1)
         this.CloudFlareError(data.status)
@@ -108,7 +102,6 @@ export class KLManga extends Source {
         const request = createRequestObject({
             url: `${KLM_DOMAIN}/${mangaId}`,
             method,
-            headers,
         })
         const data = await this.requestManager.schedule(request, 1)
         this.CloudFlareError(data.status)
@@ -120,7 +113,6 @@ export class KLManga extends Source {
         const request = createRequestObject({
         url: `${KLM_DOMAIN}/${chapterId}`,
         method,
-        headers,
         })
         const data = await this.requestManager.schedule(request, 1)
         this.CloudFlareError(data.status)
@@ -141,7 +133,6 @@ export class KLManga extends Source {
         const request = createRequestObject({
             url: encodeURI(`${KLM_DOMAIN}/manga-list.html${page > 1 && `?listType=pagination&page=${page}`}?name=${query.title}`),
             method,
-            headers,
         })
         const data = await this.requestManager.schedule(request, 1)
         this.CloudFlareError(data.status)
@@ -158,7 +149,6 @@ export class KLManga extends Source {
         const request = createRequestObject({
           url: KLM_DOMAIN,
           method,
-          headers,
         })
     
         const response = await this.requestManager.schedule(request, 3)

@@ -23,10 +23,6 @@ import {
 import { Parser } from './parser'
 
 export const M1000_DOMAIN = 'https://manga1000.top'
-const headers = {
-'content-type': 'application/x-www-form-urlencoded',
-Referer: M1000_DOMAIN,
-}
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
 
 export const Manga1000Info: SourceInfo = {
@@ -89,7 +85,6 @@ async getMangaDetails(mangaId: string): Promise<Manga> {
     const request = createRequestObject({
         url: `${M1000_DOMAIN}/${mangaId}/`,
         method: 'GET',
-        headers
     })
 
     const response = await this.requestManager.schedule(request, 3)
@@ -100,7 +95,6 @@ async getChapters(mangaId: string): Promise<Chapter[]> {
     const request = createRequestObject({
         url: `${M1000_DOMAIN}/${mangaId}/`,
         method: 'GET',
-        headers
     })
 
     const response = await this.requestManager.schedule(request, 3)
@@ -111,7 +105,6 @@ async getChapterDetails(mangaId: string, chapterId: string): Promise<ChapterDeta
     const request = createRequestObject({
         url: `${M1000_DOMAIN}/${mangaId}/${chapterId}/`,
         method: 'GET',
-        headers
     })
 
     const response = await this.requestManager.schedule(request, 3)
@@ -126,7 +119,6 @@ async getSearchResults(query: SearchRequest, metadata: any): Promise<PagedResult
     const request = createRequestObject({
         url: `${M1000_DOMAIN}/manga-list.html?name=${(query.title ?? '').replace(/ /g, '+')}&page=${page}`,
         method: 'GET',
-        headers
     })
 
     const data = await this.requestManager.schedule(request, 3)
@@ -145,7 +137,6 @@ override async getHomePageSections(sectionCallback: (section: HomeSection) => vo
     const request = createRequestObject({
       url: M1000_DOMAIN,
       method: 'GET',
-      headers,
     })
 
     const response = await this.requestManager.schedule(request, 1)

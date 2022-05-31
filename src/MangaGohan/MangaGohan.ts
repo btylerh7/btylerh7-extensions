@@ -18,11 +18,6 @@ import {Parser} from './MangaGohanParser'
 
 export const MG_DOMAIN = 'https://mangagohan.me'
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
-const headers = {
-    'content-type': 'application/x-www-form-urlencoded',
-    Referer: 'https://mangagohan.me/?__cf_chl_tk=Vdie6FXxTJZv3.cpvMsRffoLHmwttqIvYSyp79VoXQI-1653012153-0-gaNycGzNCqU',
-    'user-agent': userAgent
-}
 const method = 'GET'
 
 export const MangaGohanInfo: SourceInfo = {
@@ -60,7 +55,6 @@ export class MangaGohan extends Source {
         return createRequestObject({
             url: `${MG_DOMAIN}`,
             method,
-            headers,
         })
     }
     requestManager = createRequestManager({
@@ -91,7 +85,6 @@ export class MangaGohan extends Source {
         const request = createRequestObject({
             url: encodeURI(`${MG_DOMAIN}/manga/${mangaId}`),
             method,
-            headers,
         })
         const data = await this.requestManager.schedule(request, 3)
         this.CloudFlareError(data.status)
@@ -103,7 +96,6 @@ export class MangaGohan extends Source {
         const request = createRequestObject({
             url: encodeURI(`${MG_DOMAIN}/manga/${mangaId}`),
             method,
-            headers,
         })
         const data = await this.requestManager.schedule(request, 3)
         this.CloudFlareError(data.status)
@@ -115,7 +107,6 @@ export class MangaGohan extends Source {
         const request = createRequestObject({
             url: encodeURI(`${MG_DOMAIN}/manga/${mangaId}/${chapterId}/`),
             method,
-            headers,
         })
         const data = await this.requestManager.schedule(request, 3)
         this.CloudFlareError(data.status)
@@ -132,14 +123,12 @@ export class MangaGohan extends Source {
                 url: MG_DOMAIN,
                 param: `/?s=${encodeURI(query.title)}&post_type=wp-manga`, 
                 method,
-                headers,
             }) 
         } else {
             if(query.includedTags) type = 'tag'
             request = createRequestObject({
                 url:`${MG_DOMAIN}/manga-genre/${encodeURI(query.includedTags?.map((x: any) => x.id)[0])}/page/${page.toString()}`,
                 method,
-                headers,
             })
         }
         const data = await this.requestManager.schedule(request, 3)
@@ -158,7 +147,6 @@ export class MangaGohan extends Source {
         const request = createRequestObject({
             url: MG_DOMAIN,
             method,
-            headers,
         })
 
         const response = await this.requestManager.schedule(request, 3)
@@ -170,7 +158,6 @@ export class MangaGohan extends Source {
         const request = createRequestObject({
             url: MG_DOMAIN,
             method,
-            headers,
         })
         const response = await this.requestManager.schedule(request, 1)
         this.CloudFlareError(response.status)

@@ -23,10 +23,6 @@ import {
 import { Parser } from './Parser'
 
 export const M1001_DOMAIN = 'https://manga1001.top'
-const headers = {
-'content-type': 'application/x-www-form-urlencoded',
-Referer: M1001_DOMAIN,
-}
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1'
 
 export const Manga1001Info: SourceInfo = {
@@ -89,7 +85,6 @@ export class Manga1001 extends Source {
         const request = createRequestObject({
             url: encodeURI(`${M1001_DOMAIN}/${mangaId}-raw-–-free/?asgtbndr=1`),
             method: 'GET',
-            headers
         })
 
         const response = await this.requestManager.schedule(request, 3)
@@ -100,7 +95,6 @@ export class Manga1001 extends Source {
         const request = createRequestObject({
             url: encodeURI(`${M1001_DOMAIN}/${mangaId}-raw-–-free/?asgtbndr=1`),
             method: 'GET',
-            headers
         })
 
         const response = await this.requestManager.schedule(request, 3)
@@ -111,7 +105,6 @@ export class Manga1001 extends Source {
         const request = createRequestObject({
             url: encodeURI(`${M1001_DOMAIN}/${mangaId}-–-raw-${chapterId}/?asgtbndr=1`),
             method: 'GET',
-            headers
         })
 
         const response = await this.requestManager.schedule(request, 3)
@@ -126,7 +119,6 @@ export class Manga1001 extends Source {
         const request = createRequestObject({
             url: `${M1001_DOMAIN}/?s=${encodeURI((query.title ?? '')).replace(/ /g, '+')}`, //&page=${page}
             method: 'GET',
-            headers
         })
 
         const data = await this.requestManager.schedule(request, 3)
@@ -147,7 +139,6 @@ export class Manga1001 extends Source {
             const request = createRequestObject({
             url,
             method: 'GET',
-            headers,
             })
 
             const response = await this.requestManager.schedule(request, 1)
