@@ -58,10 +58,10 @@ export class MangaGohan extends Source {
     ]
     override getCloudflareBypassRequest() {
         return createRequestObject({
-                url: `${MG_DOMAIN}`,
-                method,
-                headers,
-            })
+            url: `${MG_DOMAIN}`,
+            method,
+            headers,
+        })
     }
     requestManager = createRequestManager({
         requestsPerSecond: 4,
@@ -74,7 +74,7 @@ export class MangaGohan extends Source {
                     ...{
                         'user-agent': userAgent,
                         'referer': 'https://mangagohan.me/?__cf_chl_tk=Vdie6FXxTJZv3.cpvMsRffoLHmwttqIvYSyp79VoXQI-1653012153-0-gaNycGzNCqU'
-                        }
+                    }
                 }
                 return request
             },

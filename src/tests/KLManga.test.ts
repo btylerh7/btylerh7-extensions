@@ -23,8 +23,7 @@ describe('KLManga Tests', () => {
 
     it('Retrieve Manga Details', async () => {
         const details = await wrapper.getMangaDetails(source, mangaId)
-        expect(details, 'No results found with test-defined ID [' + mangaId + ']')
-        .to.exist
+        expect(details, 'No results found with test-defined ID [' + mangaId + ']').to.exist
 
         // Validate that the fields are filled
 

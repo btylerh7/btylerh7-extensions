@@ -27,7 +27,7 @@ describe('MangaGohan Tests', () => {
 
         // Validate that the fields are filled
         const data = details
-        console.log("manga details:",data)
+        console.log('manga details:',data)
         expect(data.image, 'Missing Image').to.be.not.empty
         expect(data.status, 'Missing Status').to.exist
         expect(data.desc, 'Missing Description').to.be.not.empty
@@ -64,7 +64,7 @@ describe('MangaGohan Tests', () => {
 
     it('Testing search', async () => {
         const testSearch: SearchRequest = {
-        title: 'kanojo',
+            title: 'kanojo',
             parameters: {
                 // includedTags: ['sf・ファンタジー'],
                 includedTags:[]
