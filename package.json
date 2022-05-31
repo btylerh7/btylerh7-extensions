@@ -1,7 +1,7 @@
 {
   "name": "manga1000",
   "version": "1.0.0",
-  "description": "Japanese Language Sources extension by btylerh7",
+  "description": "Japanese Language Sources extension for Paperback by btylerh7",
   "main": "index.js",
   "baseURL": "https://btylerh7.github.io/btylerh7-japanese-extensions",
   "scripts": {
