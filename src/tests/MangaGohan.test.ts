@@ -93,8 +93,7 @@ describe('MangaGohan Tests', () => {
     })
     it('Get tags', async () => {
         const tags = await wrapper.getTags(source)
-        const taglist = tags![0]?.tags!
-        console.log(taglist)
+        // const taglist = tags?[0]?.tags
         expect(tags, 'No server response').to.exist
         expect(tags, 'Empty server response').to.not.be.empty
     })
