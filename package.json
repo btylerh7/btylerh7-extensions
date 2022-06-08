@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Japanese Language Sources extension for Paperback by btylerh7",
   "main": "index.js",
-  "baseURL": "https://btylerh7.github.io/btylerh7-japanese-extensions/japanese-extensions/",
+  "baseURL": "https://btylerh7.github.io/btylerh7-foreign-extensions/japanese-extensions/",
   "scripts": {
     "bundle": "paperback bundle",
     "serve": "paperback serve",
@@ -16,9 +16,9 @@
   "author": "btylerh7",
   "license": "GPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/btylerh7/btylerh7-japanese-extensions/issues"
+    "url": "https://github.com/btylerh7/btylerh7-foreign-extensions/issues"
   },
-  "homepage": "https://btylerh7.github.io/btylerh7-japanese-extensions",
+  "homepage": "https://btylerh7.github.io/btylerh7-foreign-extensions/japanese-extensions/",
   "devDependencies": {
     "@types/chai": "^4.3.0",
     "@types/chai-as-promised": "^7.1.4",
