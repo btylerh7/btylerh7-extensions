@@ -390,7 +390,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Webtoons = exports.getExportVersion = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
 const WebtoonsParser_1 = require("./WebtoonsParser");
-const BASE_VERSION = '1.0.1';
+const BASE_VERSION = '1.1.0';
 const getExportVersion = (EXTENSION_VERSION) => {
     return BASE_VERSION.split('.').map((x, index) => Number(x) + Number(EXTENSION_VERSION.split('.')[index])).join('.');
 };
@@ -485,7 +485,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
             });
             const response = yield this.requestManager.schedule(request, 1);
             const $ = this.cheerio.load(response.data);
-            return this.parser.parseHomeSections($, sectionCallback, this.langString, this.popularTitle, this.newTrendTitle);
+            return this.parser.parseHomeSections($, sectionCallback, this.langString, this.popularTitle, this.newTrendTitle, this.canvasTitle);
         });
     }
 }
@@ -565,12 +565,14 @@ class Parser {
         }
         return results;
     }
-    parseHomeSections($, sectionCallback, langString, popularTitle, newTrendTitle) {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
-        const popularSection = createHomeSection({ id: '0', title: popularTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: true, });
-        const newTrendSection = createHomeSection({ id: '1', title: newTrendTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: true, });
+    parseHomeSections($, sectionCallback, langString, popularTitle, newTrendTitle, canvasTitle) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+        const popularSection = createHomeSection({ id: '0', title: popularTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
+        const newTrendSection = createHomeSection({ id: '1', title: newTrendTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
+        const canvasSection = createHomeSection({ id: '1', title: canvasTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
         const popular = [];
         const newTrend = [];
+        const canvas = [];
         for (const popularComic of $('.ranking_lst.popular').next().find('ul > li').toArray()) {
             const mangaId = (_b = (_a = $('a', popularComic).attr('href')) === null || _a === void 0 ? void 0 : _a.split(`${langString}/`)[1]) !== null && _b !== void 0 ? _b : '';
             if (mangaId.startsWith('top?rankingGenre'))
@@ -605,6 +607,20 @@ class Parser {
         }
         newTrendSection.items = newTrend;
         sectionCallback(newTrendSection);
+        for (const canvasComic of $('.ranking_lst.popular').next().next().find('ul > li').toArray()) {
+            const mangaId = (_k = (_j = $('a', canvasComic).attr('href')) === null || _j === void 0 ? void 0 : _j.split(`${langString}/`)[1]) !== null && _k !== void 0 ? _k : '';
+            const image = (_l = $(canvasComic).find('img').attr('src')) !== null && _l !== void 0 ? _l : '';
+            const title = (_m = $(canvasComic).find('.subj').text().trim()) !== null && _m !== void 0 ? _m : '';
+            canvas.push(createMangaTile({
+                id: mangaId,
+                image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
+                title: createIconText({
+                    text: title,
+                }),
+            }));
+        }
+        canvasSection.items = canvas;
+        sectionCallback(canvasSection);
     }
 }
 exports.Parser = Parser;
@@ -644,6 +660,7 @@ class fr extends Webtoons_1.Webtoons {
         this.langString = 'fr';
         this.popularTitle = 'Le Plus Populaire';
         this.newTrendTitle = 'Nouvelle Tendence';
+        this.canvasTitle = 'Canvas Le Plus Populaire';
     }
 }
 exports.fr = fr;
