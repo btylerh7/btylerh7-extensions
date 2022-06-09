@@ -390,7 +390,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Webtoons = exports.getExportVersion = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
 const WebtoonsParser_1 = require("./WebtoonsParser");
-const BASE_VERSION = '1.1.1';
+const BASE_VERSION = '1.1.2';
 const getExportVersion = (EXTENSION_VERSION) => {
     return BASE_VERSION.split('.').map((x, index) => Number(x) + Number(EXTENSION_VERSION.split('.')[index])).join('.');
 };
@@ -424,7 +424,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
     getMangaDetails(mangaId) {
         return __awaiter(this, void 0, void 0, function* () {
             const request = createRequestObject({
-                url: `${this.baseUrl}/${mangaId}`,
+                url: `https://m.webtoons.com/${this.langString}/${mangaId}`,
                 method: 'GET',
             });
             const response = yield this.requestManager.schedule(request, 3);
@@ -499,12 +499,12 @@ const paperback_extensions_common_1 = require("paperback-extensions-common");
 class Parser {
     parseMangaDetails($, mangaId) {
         var _a, _b, _c, _d, _e;
-        const titles = [(_a = $('.subj', $('.info').first()).text().trim()) !== null && _a !== void 0 ? _a : ''];
-        const desc = (_b = $('p.summary').text().trim()) !== null && _b !== void 0 ? _b : '';
-        const image = (_c = $('.thmb').find('img').attr('src')) !== null && _c !== void 0 ? _c : '';
-        const rating = Number($('#_starScoreAverage').text().replace(',', '.'));
+        const titles = [(_b = (_a = $('.subj').text().split('\n')[0]) === null || _a === void 0 ? void 0 : _a.trim()) !== null && _b !== void 0 ? _b : ''];
+        const desc = (_c = $('p.summary').text().trim()) !== null && _c !== void 0 ? _c : '';
+        const image = (_d = $('.background_pic').find('img').attr('src')) !== null && _d !== void 0 ? _d : '';
+        const rating = Number($('em.grade_num').text().replace(',', '.'));
         const status = paperback_extensions_common_1.MangaStatus.ONGOING;
-        const author = (_e = (_d = $('.author_area').text().replace(/[\t\n]/g, '').split('...')[0]) === null || _d === void 0 ? void 0 : _d.trim()) !== null && _e !== void 0 ? _e : '';
+        const author = (_e = $('.author > a').text().trim()) !== null && _e !== void 0 ? _e : ''; //.replace(/[\t\n]/g,'').split('...')[0]?.      
         return createManga({
             id: mangaId,
             titles,
