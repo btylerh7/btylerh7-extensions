@@ -390,7 +390,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Webtoons = exports.getExportVersion = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
 const WebtoonsParser_1 = require("./WebtoonsParser");
-const BASE_VERSION = '1.1.0';
+const BASE_VERSION = '1.1.1';
 const getExportVersion = (EXTENSION_VERSION) => {
     return BASE_VERSION.split('.').map((x, index) => Number(x) + Number(EXTENSION_VERSION.split('.')[index])).join('.');
 };
@@ -611,6 +611,8 @@ class Parser {
             const mangaId = (_k = (_j = $('a', canvasComic).attr('href')) === null || _j === void 0 ? void 0 : _j.split(`${langString}/`)[1]) !== null && _k !== void 0 ? _k : '';
             const image = (_l = $(canvasComic).find('img').attr('src')) !== null && _l !== void 0 ? _l : '';
             const title = (_m = $(canvasComic).find('.subj').text().trim()) !== null && _m !== void 0 ? _m : '';
+            if (mangaId.startsWith('top?rankingGenre'))
+                continue;
             canvas.push(createMangaTile({
                 id: mangaId,
                 image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
