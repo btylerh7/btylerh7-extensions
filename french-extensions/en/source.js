@@ -612,11 +612,11 @@ exports.Parser = Parser;
 },{"paperback-extensions-common":5}],50:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Webtoons_en = exports.Webtoons_enInfo = exports.WEBTOONS_EN_DOMAIN = void 0;
+exports.Webtoons_en = exports.enInfo = exports.WEBTOONS_EN_DOMAIN = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
 const Webtoons_1 = require("../Webtoons");
 exports.WEBTOONS_EN_DOMAIN = 'https://www.webtoons.com/en';
-exports.Webtoons_enInfo = {
+exports.enInfo = {
     version: (0, Webtoons_1.getExportVersion)('0.0.0'),
     name: 'English Webtoons',
     description: 'Extension that pulls manga from the English version of Webtoons.',
