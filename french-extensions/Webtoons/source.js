@@ -393,7 +393,7 @@ const parser_1 = require("./parser");
 exports.WEBTOONS_DOMAIN = 'https://www.webtoons.com/fr';
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
 exports.WebtoonsInfo = {
-    version: '1.0.0',
+    version: '1.0.1',
     name: 'Webtoons',
     description: 'Extension that pulls manga from French Webtoons.',
     author: 'btylerh7',
@@ -515,19 +515,17 @@ const paperback_extensions_common_1 = require("paperback-extensions-common");
 class Parser {
     parseMangaDetails($, mangaId) {
         var _a, _b, _c, _d, _e;
-        const infoDiv = $('.info').first();
-        const title = (_a = $('.subj', infoDiv).text().trim()) !== null && _a !== void 0 ? _a : '';
+        const titles = [(_a = $('.subj', $('.info').first()).text().trim()) !== null && _a !== void 0 ? _a : ''];
         const desc = (_b = $('p.summary').text().trim()) !== null && _b !== void 0 ? _b : '';
         const image = (_c = $('.thmb').find('img').attr('src')) !== null && _c !== void 0 ? _c : '';
-        const rating = $('#_starScoreAverage').text().replace(',', '.');
-        console.log(rating);
+        const rating = Number($('#_starScoreAverage').text().replace(',', '.'));
         const status = paperback_extensions_common_1.MangaStatus.ONGOING;
         const author = (_e = (_d = $('.author_area').text().replace(/[\t\n]/g, '').split('...')[0]) === null || _d === void 0 ? void 0 : _d.trim()) !== null && _e !== void 0 ? _e : '';
         return createManga({
             id: mangaId,
-            titles: [title],
-            image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
-            rating: Number(rating),
+            titles,
+            image,
+            rating,
             author,
             status,
             desc
@@ -571,7 +569,7 @@ class Parser {
         for (const result of $('.card_lst').find('li').toArray()) {
             const genre = $(result).find('span').text().toLowerCase().replace('like', '').trim();
             const title = $(result).find('.subj').text().trim();
-            const urlTitle = title.replace(/[-] | ['] /g, '').replace(' ', '-').toLowerCase();
+            const urlTitle = title.replace(/-|'/g, '').replace(/ /g, '-').toLowerCase();
             const idNumber = (_a = $(result).find('a').attr('href')) === null || _a === void 0 ? void 0 : _a.split('titleNo=')[1];
             const id = `${genre}/${urlTitle}/list?title_no=${idNumber}`;
             const image = (_b = $(result).find('img').attr('src')) !== null && _b !== void 0 ? _b : '';
@@ -589,8 +587,10 @@ class Parser {
         const newTrendSection = createHomeSection({ id: '1', title: 'Nouvelle Tendence', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: true, });
         const popular = [];
         const newTrend = [];
-        for (const popularComic of $('ul.lst_type1').next().find('li').toArray()) {
+        for (const popularComic of $('.ranking_lst.popular').next().find('ul > li').toArray()) {
             const mangaId = (_b = (_a = $('a', popularComic).attr('href')) === null || _a === void 0 ? void 0 : _a.split('fr/')[1]) !== null && _b !== void 0 ? _b : '';
+            if (mangaId.startsWith('top?rankingGenre'))
+                continue;
             const image = (_c = $(popularComic).find('img').attr('src')) !== null && _c !== void 0 ? _c : '';
             const title = (_d = $(popularComic).find('.subj').text().trim()) !== null && _d !== void 0 ? _d : '';
             popular.push(createMangaTile({
