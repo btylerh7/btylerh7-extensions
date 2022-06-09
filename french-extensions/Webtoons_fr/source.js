@@ -387,43 +387,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Webtoons = exports.WebtoonsInfo = exports.WEBTOONS_DOMAIN = void 0;
+exports.Webtoons = exports.getExportVersion = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
-const parser_1 = require("./parser");
-exports.WEBTOONS_DOMAIN = 'https://www.webtoons.com/fr';
-const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
-exports.WebtoonsInfo = {
-    version: '1.0.2',
-    name: 'Webtoons',
-    description: 'Extension that pulls manga from French Webtoons.',
-    author: 'btylerh7',
-    authorWebsite: 'http://github.com/btylerh7',
-    icon: 'logo.jpeg',
-    contentRating: paperback_extensions_common_1.ContentRating.EVERYONE,
-    websiteBaseURL: exports.WEBTOONS_DOMAIN,
-    sourceTags: [
-        {
-            text: 'French',
-            type: paperback_extensions_common_1.TagType.GREY,
-        },
-        {
-            text: 'In Development',
-            type: paperback_extensions_common_1.TagType.YELLOW
-        }
-    ],
+const WebtoonsParser_1 = require("./WebtoonsParser");
+const BASE_VERSION = '1.0.0';
+const getExportVersion = (EXTENSION_VERSION) => {
+    return BASE_VERSION.split('.').map((x, index) => Number(x) + Number(EXTENSION_VERSION.split('.')[index])).join('.');
 };
+exports.getExportVersion = getExportVersion;
 class Webtoons extends paperback_extensions_common_1.Source {
     constructor() {
         super(...arguments);
         this.requestManager = createRequestManager({
             requestsPerSecond: 3,
-            // requestTimeout: 1500,
+            requestTimeout: 15000,
             interceptor: {
                 interceptRequest: (request) => __awaiter(this, void 0, void 0, function* () {
                     var _a;
                     request.headers = Object.assign(Object.assign({}, ((_a = request.headers) !== null && _a !== void 0 ? _a : {})), {
-                        'user-agent': userAgent,
-                        'referer': `${exports.WEBTOONS_DOMAIN}/`
+                        'user-agent': this.userAgent,
+                        'referer': `${this.baseUrl}/`
                     });
                     return request;
                 }),
@@ -432,15 +415,16 @@ class Webtoons extends paperback_extensions_common_1.Source {
                 })
             }
         });
-        this.parser = new parser_1.Parser();
+        this.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
+        this.parser = new WebtoonsParser_1.Parser();
     }
     getMangaShareUrl(mangaId) {
-        return `${exports.WEBTOONS_DOMAIN}/${mangaId}`;
+        return `${this.baseUrl}/${mangaId}`;
     }
     getMangaDetails(mangaId) {
         return __awaiter(this, void 0, void 0, function* () {
             const request = createRequestObject({
-                url: `${exports.WEBTOONS_DOMAIN}/${mangaId}`,
+                url: `${this.baseUrl}/${mangaId}`,
                 method: 'GET',
             });
             const response = yield this.requestManager.schedule(request, 3);
@@ -451,19 +435,19 @@ class Webtoons extends paperback_extensions_common_1.Source {
     getChapters(mangaId) {
         return __awaiter(this, void 0, void 0, function* () {
             const request = createRequestObject({
-                url: `${exports.WEBTOONS_DOMAIN}/${mangaId}`,
+                url: `${this.baseUrl}/${mangaId}`,
                 method: 'GET',
             });
             const response = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(response.data);
-            return this.parser.parseChapters($, mangaId);
+            return this.parser.parseChapters($, mangaId, this.languageCode);
         });
     }
     getChapterDetails(mangaId, chapterId) {
         return __awaiter(this, void 0, void 0, function* () {
             const newId = mangaId.replace('list', `ep${chapterId}/viewer`);
             const request = createRequestObject({
-                url: `${exports.WEBTOONS_DOMAIN}/${newId}&episode_no=${chapterId}`,
+                url: `${this.baseUrl}/${newId}&episode_no=${chapterId}`,
                 method: 'GET',
             });
             const response = yield this.requestManager.schedule(request, 3);
@@ -478,7 +462,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
             if (page == -1)
                 return createPagedResults({ results: [], metadata: { page: -1 } });
             const request = createRequestObject({
-                url: `${exports.WEBTOONS_DOMAIN}/search?keyword=${((_b = query.title) !== null && _b !== void 0 ? _b : '').replace(/ /g, '+')}&page=${page}`,
+                url: `${this.baseUrl}/search?keyword=${((_b = query.title) !== null && _b !== void 0 ? _b : '').replace(/ /g, '+')}&page=${page}`,
                 method: 'GET',
             });
             const data = yield this.requestManager.schedule(request, 3);
@@ -496,18 +480,18 @@ class Webtoons extends paperback_extensions_common_1.Source {
     getHomePageSections(sectionCallback) {
         return __awaiter(this, void 0, void 0, function* () {
             const request = createRequestObject({
-                url: `${exports.WEBTOONS_DOMAIN}/top`,
+                url: `${this.baseUrl}/top`,
                 method: 'GET',
             });
             const response = yield this.requestManager.schedule(request, 1);
             const $ = this.cheerio.load(response.data);
-            return this.parser.parseHomeSections($, sectionCallback);
+            return this.parser.parseHomeSections($, sectionCallback, this.langString, this.popularTitle, this.newTrendTitle);
         });
     }
 }
 exports.Webtoons = Webtoons;
 
-},{"./parser":49,"paperback-extensions-common":5}],49:[function(require,module,exports){
+},{"./WebtoonsParser":49,"paperback-extensions-common":5}],49:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Parser = void 0;
@@ -531,7 +515,7 @@ class Parser {
             desc
         });
     }
-    parseChapters($, mangaId) {
+    parseChapters($, mangaId, langCode) {
         const chapters = [];
         // const url = $('._episodeItem').first().find('a').attr('href')?.split('fr/')[1]?.split('/ep')[0] ${url}/ep${i}/viewer?title_no=${mangaId}&episode_no=${i}
         const mostRecent = $('._episodeItem').first().attr('data-episode-no');
@@ -542,7 +526,7 @@ class Parser {
                 id,
                 mangaId,
                 chapNum: Number(chapNum),
-                langCode: paperback_extensions_common_1.LanguageCode.FRENCH
+                langCode
             }));
         }
         return chapters;
@@ -581,14 +565,14 @@ class Parser {
         }
         return results;
     }
-    parseHomeSections($, sectionCallback) {
+    parseHomeSections($, sectionCallback, langString, popularTitle, newTrendTitle) {
         var _a, _b, _c, _d, _e, _f, _g, _h;
-        const popularSection = createHomeSection({ id: '0', title: 'Le Plus Populaire', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: true, });
-        const newTrendSection = createHomeSection({ id: '1', title: 'Nouvelle Tendence', type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: true, });
+        const popularSection = createHomeSection({ id: '0', title: popularTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: true, });
+        const newTrendSection = createHomeSection({ id: '1', title: newTrendTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: true, });
         const popular = [];
         const newTrend = [];
         for (const popularComic of $('.ranking_lst.popular').next().find('ul > li').toArray()) {
-            const mangaId = (_b = (_a = $('a', popularComic).attr('href')) === null || _a === void 0 ? void 0 : _a.split('fr/')[1]) !== null && _b !== void 0 ? _b : '';
+            const mangaId = (_b = (_a = $('a', popularComic).attr('href')) === null || _a === void 0 ? void 0 : _a.split(`${langString}/`)[1]) !== null && _b !== void 0 ? _b : '';
             if (mangaId.startsWith('top?rankingGenre'))
                 continue;
             const image = (_c = $(popularComic).find('img').attr('src')) !== null && _c !== void 0 ? _c : '';
@@ -604,7 +588,7 @@ class Parser {
         popularSection.items = popular;
         sectionCallback(popularSection);
         for (const newTrendComic of $('ul.lst_type1').find('li').toArray()) {
-            const mangaId = (_f = (_e = $('a', newTrendComic).attr('href')) === null || _e === void 0 ? void 0 : _e.split('fr/')[1]) !== null && _f !== void 0 ? _f : '';
+            const mangaId = (_f = (_e = $('a', newTrendComic).attr('href')) === null || _e === void 0 ? void 0 : _e.split(`${langString}/`)[1]) !== null && _f !== void 0 ? _f : '';
             const image = (_g = $(newTrendComic).find('img').attr('src')) !== null && _g !== void 0 ? _g : '';
             const title = (_h = $(newTrendComic).find('.subj').text().trim()) !== null && _h !== void 0 ? _h : '';
             // console.log("recent:", image)
@@ -622,5 +606,44 @@ class Parser {
 }
 exports.Parser = Parser;
 
-},{"paperback-extensions-common":5}]},{},[48])(48)
+},{"paperback-extensions-common":5}],50:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Webtoons_fr = exports.Webtoons_frInfo = exports.WEBTOONS_FR_DOMAIN = void 0;
+const paperback_extensions_common_1 = require("paperback-extensions-common");
+const Webtoons_1 = require("../Webtoons");
+exports.WEBTOONS_FR_DOMAIN = 'https://www.webtoons.com/fr';
+exports.Webtoons_frInfo = {
+    version: (0, Webtoons_1.getExportVersion)('0.0.0'),
+    name: 'French Webtoons',
+    description: 'Extension that pulls manga from the French version of Webtoons.',
+    author: 'btylerh7',
+    authorWebsite: 'http://github.com/btylerh7',
+    icon: 'logo.jpeg',
+    contentRating: paperback_extensions_common_1.ContentRating.EVERYONE,
+    websiteBaseURL: exports.WEBTOONS_FR_DOMAIN,
+    sourceTags: [
+        {
+            text: 'French',
+            type: paperback_extensions_common_1.TagType.GREY,
+        },
+        {
+            text: 'In Development',
+            type: paperback_extensions_common_1.TagType.YELLOW
+        }
+    ],
+};
+class Webtoons_fr extends Webtoons_1.Webtoons {
+    constructor() {
+        super(...arguments);
+        this.baseUrl = exports.WEBTOONS_FR_DOMAIN;
+        this.languageCode = paperback_extensions_common_1.LanguageCode.FRENCH;
+        this.langString = 'fr';
+        this.popularTitle = 'Le Plus Populaire';
+        this.newTrendTitle = 'Nouvelle Tendence';
+    }
+}
+exports.Webtoons_fr = Webtoons_fr;
+
+},{"../Webtoons":48,"paperback-extensions-common":5}]},{},[50])(50)
 });
