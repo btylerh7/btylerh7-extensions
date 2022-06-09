@@ -390,7 +390,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Webtoons = exports.getExportVersion = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
 const WebtoonsParser_1 = require("./WebtoonsParser");
-const BASE_VERSION = '1.0.0';
+const BASE_VERSION = '1.0.1';
 const getExportVersion = (EXTENSION_VERSION) => {
     return BASE_VERSION.split('.').map((x, index) => Number(x) + Number(EXTENSION_VERSION.split('.')[index])).join('.');
 };
@@ -575,6 +575,8 @@ class Parser {
             const mangaId = (_b = (_a = $('a', popularComic).attr('href')) === null || _a === void 0 ? void 0 : _a.split(`${langString}/`)[1]) !== null && _b !== void 0 ? _b : '';
             if (mangaId.startsWith('top?rankingGenre'))
                 continue;
+            if (mangaId.startsWith('challenge'))
+                continue;
             const image = (_c = $(popularComic).find('img').attr('src')) !== null && _c !== void 0 ? _c : '';
             const title = (_d = $(popularComic).find('.subj').text().trim()) !== null && _d !== void 0 ? _d : '';
             popular.push(createMangaTile({
@@ -591,7 +593,8 @@ class Parser {
             const mangaId = (_f = (_e = $('a', newTrendComic).attr('href')) === null || _e === void 0 ? void 0 : _e.split(`${langString}/`)[1]) !== null && _f !== void 0 ? _f : '';
             const image = (_g = $(newTrendComic).find('img').attr('src')) !== null && _g !== void 0 ? _g : '';
             const title = (_h = $(newTrendComic).find('.subj').text().trim()) !== null && _h !== void 0 ? _h : '';
-            // console.log("recent:", image)
+            if (mangaId.startsWith('challenge'))
+                continue;
             newTrend.push(createMangaTile({
                 id: mangaId,
                 image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
@@ -619,7 +622,7 @@ exports.Webtoons_frInfo = {
     description: 'Extension that pulls manga from the French version of Webtoons.',
     author: 'btylerh7',
     authorWebsite: 'http://github.com/btylerh7',
-    icon: 'logo.jpeg',
+    icon: 'logo.png',
     contentRating: paperback_extensions_common_1.ContentRating.EVERYONE,
     websiteBaseURL: exports.WEBTOONS_FR_DOMAIN,
     sourceTags: [
