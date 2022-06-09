@@ -398,7 +398,7 @@ exports.WebtoonsInfo = {
     description: 'Extension that pulls manga from French Webtoons.',
     author: 'btylerh7',
     authorWebsite: 'http://github.com/btylerh7',
-    icon: 'logo.jpg',
+    icon: 'logo.jpeg',
     contentRating: paperback_extensions_common_1.ContentRating.EVERYONE,
     websiteBaseURL: exports.WEBTOONS_DOMAIN,
     sourceTags: [
