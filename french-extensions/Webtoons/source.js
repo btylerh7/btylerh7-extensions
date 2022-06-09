@@ -393,12 +393,12 @@ const parser_1 = require("./parser");
 exports.WEBTOONS_DOMAIN = 'https://www.webtoons.com/fr';
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
 exports.WebtoonsInfo = {
-    version: '1.0.1',
+    version: '1.0.2',
     name: 'Webtoons',
     description: 'Extension that pulls manga from French Webtoons.',
     author: 'btylerh7',
     authorWebsite: 'http://github.com/btylerh7',
-    icon: 'logo.png',
+    icon: 'logo.jpg',
     contentRating: paperback_extensions_common_1.ContentRating.EVERYONE,
     websiteBaseURL: exports.WEBTOONS_DOMAIN,
     sourceTags: [
