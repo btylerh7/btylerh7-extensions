@@ -569,7 +569,7 @@ class Parser {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
         const popularSection = createHomeSection({ id: '0', title: popularTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
         const newTrendSection = createHomeSection({ id: '1', title: newTrendTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
-        const canvasSection = createHomeSection({ id: '1', title: canvasTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
+        const canvasSection = createHomeSection({ id: '2', title: canvasTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
         const popular = [];
         const newTrend = [];
         const canvas = [];
