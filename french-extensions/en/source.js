@@ -398,6 +398,8 @@ exports.getExportVersion = getExportVersion;
 class Webtoons extends paperback_extensions_common_1.Source {
     constructor() {
         super(...arguments);
+        this.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
+        this.parser = new WebtoonsParser_1.Parser();
         this.requestManager = createRequestManager({
             requestsPerSecond: 3,
             requestTimeout: 15000,
@@ -415,8 +417,6 @@ class Webtoons extends paperback_extensions_common_1.Source {
                 })
             }
         });
-        this.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
-        this.parser = new WebtoonsParser_1.Parser();
     }
     getMangaShareUrl(mangaId) {
         return `${this.baseUrl}/${mangaId}`;
@@ -612,7 +612,7 @@ exports.Parser = Parser;
 },{"paperback-extensions-common":5}],50:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Webtoons_en = exports.enInfo = exports.WEBTOONS_EN_DOMAIN = void 0;
+exports.en = exports.enInfo = exports.WEBTOONS_EN_DOMAIN = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
 const Webtoons_1 = require("../Webtoons");
 exports.WEBTOONS_EN_DOMAIN = 'https://www.webtoons.com/en';
@@ -636,7 +636,7 @@ exports.enInfo = {
         }
     ],
 };
-class Webtoons_en extends Webtoons_1.Webtoons {
+class en extends Webtoons_1.Webtoons {
     constructor() {
         super(...arguments);
         this.baseUrl = exports.WEBTOONS_EN_DOMAIN;
@@ -646,7 +646,7 @@ class Webtoons_en extends Webtoons_1.Webtoons {
         this.newTrendTitle = 'New and Trending';
     }
 }
-exports.Webtoons_en = Webtoons_en;
+exports.en = en;
 
 },{"../Webtoons":48,"paperback-extensions-common":5}]},{},[50])(50)
 });
