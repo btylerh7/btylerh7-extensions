@@ -390,7 +390,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Webtoons = exports.getExportVersion = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
 const WebtoonsParser_1 = require("./WebtoonsParser");
-const BASE_VERSION = '1.1.2';
+const BASE_VERSION = '1.2.0';
 const getExportVersion = (EXTENSION_VERSION) => {
     return BASE_VERSION.split('.').map((x, index) => Number(x) + Number(EXTENSION_VERSION.split('.')[index])).join('.');
 };
@@ -456,18 +456,35 @@ class Webtoons extends paperback_extensions_common_1.Source {
         });
     }
     getSearchResults(query, metadata) {
-        var _a, _b;
+        var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("query is:", query);
             let page = (_a = metadata === null || metadata === void 0 ? void 0 : metadata.page) !== null && _a !== void 0 ? _a : 1;
             if (page == -1)
                 return createPagedResults({ results: [], metadata: { page: -1 } });
-            const request = createRequestObject({
-                url: `${this.baseUrl}/search?keyword=${((_b = query.title) !== null && _b !== void 0 ? _b : '').replace(/ /g, '+')}&page=${page}`,
-                method: 'GET',
-            });
+            let request;
+            let type = 'title';
+            let tagSearch;
+            if (query.title) {
+                request = createRequestObject({
+                    url: `${this.baseUrl}/search?keyword=${((_b = query.title) !== null && _b !== void 0 ? _b : '').replace(/ /g, '+')}&page=${page}`,
+                    method: 'GET',
+                });
+            }
+            else {
+                if (((_c = query === null || query === void 0 ? void 0 : query.includedTags) === null || _c === void 0 ? void 0 : _c.length) != 0) {
+                    type = 'tag';
+                    tagSearch = (_d = query.includedTags[0]) === null || _d === void 0 ? void 0 : _d.id;
+                    console.log("tag search is:", tagSearch);
+                }
+                request = createRequestObject({
+                    url: `${this.baseUrl}/genre`,
+                    method: 'GET',
+                });
+            }
             const data = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(data.data);
-            const manga = yield this.parser.parseSearchResults($);
+            const manga = this.parser.parseSearchResults($, this.langString, type, tagSearch !== null && tagSearch !== void 0 ? tagSearch : '');
             page++;
             if (manga.length < 18)
                 page = -1;
@@ -488,6 +505,17 @@ class Webtoons extends paperback_extensions_common_1.Source {
             return this.parser.parseHomeSections($, sectionCallback, this.langString, this.popularTitle, this.newTrendTitle, this.canvasTitle);
         });
     }
+    getTags() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const request = createRequestObject({
+                url: `${this.baseUrl}/genre`,
+                method: 'GET',
+            });
+            const response = yield this.requestManager.schedule(request, 3);
+            const $ = this.cheerio.load(response.data);
+            return this.parser.parseTags($);
+        });
+    }
 }
 exports.Webtoons = Webtoons;
 
@@ -504,7 +532,12 @@ class Parser {
         const image = (_d = $('.background_pic').find('img').attr('src')) !== null && _d !== void 0 ? _d : '';
         const rating = Number($('em.grade_num').text().replace(',', '.'));
         const status = paperback_extensions_common_1.MangaStatus.ONGOING;
-        const author = (_e = $('.author > a').text().trim()) !== null && _e !== void 0 ? _e : ''; //.replace(/[\t\n]/g,'').split('...')[0]?.      
+        const author = (_e = $('.author > a').text().trim()) !== null && _e !== void 0 ? _e : '';
+        // The site only provides one primary tag for each series
+        const label = $('.genre').text().replace(/ /g, '-').toLowerCase().trim();
+        const genreId = $('.genre').text().trim();
+        const genres = [(createTag({ label: label, id: genreId }))];
+        const tags = [createTagSection({ id: '0', label: 'genres', tags: genres })];
         return createManga({
             id: mangaId,
             titles,
@@ -512,7 +545,8 @@ class Parser {
             rating,
             author,
             status,
-            desc
+            desc,
+            tags
         });
     }
     parseChapters($, mangaId, langCode) {
@@ -547,21 +581,58 @@ class Parser {
             longStrip: true,
         });
     }
-    parseSearchResults($) {
-        var _a, _b;
+    parseSearchResults($, langString, type, tagSearch) {
+        var _a, _b, _c, _d, _e, _f, _g;
         const results = [];
-        for (const result of $('.card_lst').find('li').toArray()) {
-            const genre = $(result).find('span').text().toLowerCase().replace('like', '').trim();
-            const title = $(result).find('.subj').text().trim();
-            const urlTitle = title.replace(/-|'/g, '').replace(/ /g, '-').toLowerCase();
-            const idNumber = (_a = $(result).find('a').attr('href')) === null || _a === void 0 ? void 0 : _a.split('titleNo=')[1];
-            const id = `${genre}/${urlTitle}/list?title_no=${idNumber}`;
-            const image = (_b = $(result).find('img').attr('src')) !== null && _b !== void 0 ? _b : '';
-            results.push(createMangaTile({
-                id,
-                image,
-                title: createIconText({ text: title })
-            }));
+        console.log("type:", type);
+        console.log("TagSearch: ", tagSearch);
+        if (type == 'title') {
+            for (const result of $('.card_lst').find('li').toArray()) {
+                const genre = $(result).find('span').text().toLowerCase().replace('like', '').trim();
+                const title = $(result).find('.subj').text().trim();
+                const urlTitle = title.replace(/-|'/g, '').replace(/ /g, '-').toLowerCase();
+                const idNumber = (_a = $(result).find('a').attr('href')) === null || _a === void 0 ? void 0 : _a.split('titleNo=')[1];
+                const id = `${genre}/${urlTitle}/list?title_no=${idNumber}`;
+                const image = (_b = $(result).find('img').attr('src')) !== null && _b !== void 0 ? _b : '';
+                results.push(createMangaTile({
+                    id,
+                    image,
+                    title: createIconText({ text: title })
+                }));
+            }
+        }
+        if (type == 'tag') {
+            const tagTitlesArray = [];
+            const tagComicsArray = [];
+            let index = 0;
+            for (const title of $('.card_wrap.genre').find('h2').toArray()) {
+                const tagTitle = (_c = $(title).attr('data-genre-seo')) === null || _c === void 0 ? void 0 : _c.trim();
+                if (!tagTitle)
+                    continue;
+                tagTitlesArray.push(tagTitle);
+            }
+            for (const tagComic of $('.card_wrap.genre').find('ul.card_lst').toArray()) {
+                const comicList = $(tagComic).find('li').toArray();
+                console.log(comicList);
+                tagComicsArray.push(comicList);
+            }
+            for (let i = 0; i < tagComicsArray.length; i++) {
+                if (tagTitlesArray[i] == tagSearch)
+                    index = i;
+            }
+            console.log(index);
+            for (const comicTile of (_d = tagComicsArray[index]) !== null && _d !== void 0 ? _d : []) {
+                const title = $(comicTile).find('.subj').text().trim();
+                const image = (_e = $(comicTile).find('img').attr('src')) !== null && _e !== void 0 ? _e : '';
+                const id = (_g = (_f = $(comicTile).find('a').attr('href')) === null || _f === void 0 ? void 0 : _f.split(`${langString}/`)[1]) !== null && _g !== void 0 ? _g : '';
+                if (!id)
+                    continue;
+                results.push(createMangaTile({
+                    id,
+                    image,
+                    title: createIconText({ text: title })
+                }));
+            }
         }
         return results;
     }
@@ -574,6 +645,8 @@ class Parser {
         const newTrend = [];
         const canvas = [];
         for (const popularComic of $('.ranking_lst.popular').next().find('ul > li').toArray()) {
+            if (popular.length >= 10)
+                break;
             const mangaId = (_b = (_a = $('a', popularComic).attr('href')) === null || _a === void 0 ? void 0 : _a.split(`${langString}/`)[1]) !== null && _b !== void 0 ? _b : '';
             if (mangaId.startsWith('top?rankingGenre'))
                 continue;
@@ -592,6 +665,8 @@ class Parser {
         popularSection.items = popular;
         sectionCallback(popularSection);
         for (const newTrendComic of $('ul.lst_type1').find('li').toArray()) {
+            if (newTrend.length >= 10)
+                break;
             const mangaId = (_f = (_e = $('a', newTrendComic).attr('href')) === null || _e === void 0 ? void 0 : _e.split(`${langString}/`)[1]) !== null && _f !== void 0 ? _f : '';
             const image = (_g = $(newTrendComic).find('img').attr('src')) !== null && _g !== void 0 ? _g : '';
             const title = (_h = $(newTrendComic).find('.subj').text().trim()) !== null && _h !== void 0 ? _h : '';
@@ -608,6 +683,8 @@ class Parser {
         newTrendSection.items = newTrend;
         sectionCallback(newTrendSection);
         for (const canvasComic of $('.ranking_lst.popular').next().next().find('ul > li').toArray()) {
+            if (canvas.length >= 10)
+                break;
             const mangaId = (_k = (_j = $('a', canvasComic).attr('href')) === null || _j === void 0 ? void 0 : _j.split(`${langString}/`)[1]) !== null && _k !== void 0 ? _k : '';
             const image = (_l = $(canvasComic).find('img').attr('src')) !== null && _l !== void 0 ? _l : '';
             const title = (_m = $(canvasComic).find('.subj').text().trim()) !== null && _m !== void 0 ? _m : '';
@@ -623,6 +700,16 @@ class Parser {
         }
         canvasSection.items = canvas;
         sectionCallback(canvasSection);
+    }
+    parseTags($) {
+        var _a, _b;
+        const genres = [];
+        for (const tagHeader of $('div.card_wrap.genre').find('h2').toArray()) {
+            const id = (_b = (_a = $(tagHeader).attr('data-genre-seo')) === null || _a === void 0 ? void 0 : _a.trim()) !== null && _b !== void 0 ? _b : '';
+            const label = $(tagHeader).text().trim();
+            genres.push(createTag({ label: label, id: id }));
+        }
+        return [createTagSection({ id: '0', label: 'genres', tags: genres })];
     }
 }
 exports.Parser = Parser;
