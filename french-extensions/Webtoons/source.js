@@ -387,17 +387,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Webtoons = exports.getExportVersion = void 0;
+exports.Webtoons = exports.WebtoonsInfo = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
+const WebtoonsSettings_1 = require("./WebtoonsSettings");
 const WebtoonsParser_1 = require("./WebtoonsParser");
-const BASE_VERSION = '1.2.0';
-const getExportVersion = (EXTENSION_VERSION) => {
-    return BASE_VERSION.split('.').map((x, index) => Number(x) + Number(EXTENSION_VERSION.split('.')[index])).join('.');
+const WEBTOONS_DOMAIN = `https://www.webtoons.com/`;
+exports.WebtoonsInfo = {
+    version: '2.0.0',
+    name: 'Webtoons',
+    description: 'Extension that pulls comics from Webtoons.',
+    author: 'btylerh7',
+    authorWebsite: 'http://github.com/btylerh7',
+    icon: 'logo.png',
+    contentRating: paperback_extensions_common_1.ContentRating.EVERYONE,
+    websiteBaseURL: WEBTOONS_DOMAIN,
+    sourceTags: [
+        {
+            text: 'Multi-Language',
+            type: paperback_extensions_common_1.TagType.GREY,
+        },
+        {
+            text: 'In Development',
+            type: paperback_extensions_common_1.TagType.YELLOW
+        }
+    ],
 };
-exports.getExportVersion = getExportVersion;
 class Webtoons extends paperback_extensions_common_1.Source {
     constructor() {
         super(...arguments);
+        this.languageCode = paperback_extensions_common_1.LanguageCode.ENGLISH;
+        this.popularTitle = 'Top Originals';
+        this.newTrendTitle = 'New and Trending';
+        this.canvasTitle = 'Top Canvas';
+        this.stateManager = createSourceStateManager({});
         this.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
         this.parser = new WebtoonsParser_1.Parser();
         this.requestManager = createRequestManager({
@@ -406,9 +428,10 @@ class Webtoons extends paperback_extensions_common_1.Source {
             interceptor: {
                 interceptRequest: (request) => __awaiter(this, void 0, void 0, function* () {
                     var _a;
+                    const lang = yield (0, WebtoonsSettings_1.getLanguages)(this.stateManager);
                     request.headers = Object.assign(Object.assign({}, ((_a = request.headers) !== null && _a !== void 0 ? _a : {})), {
                         'user-agent': this.userAgent,
-                        'referer': `${this.baseUrl}/`
+                        'referer': `${WEBTOONS_DOMAIN}/${lang[0]}`
                     });
                     return request;
                 }),
@@ -418,13 +441,28 @@ class Webtoons extends paperback_extensions_common_1.Source {
             }
         });
     }
+    getSourceMenu() {
+        return __awaiter(this, void 0, void 0, function* () {
+            return Promise.resolve(createSection({
+                id: 'main',
+                header: 'Source Settings',
+                rows: () => __awaiter(this, void 0, void 0, function* () {
+                    return [
+                        yield (0, WebtoonsSettings_1.contentSettings)(this.stateManager),
+                    ];
+                })
+            }));
+        });
+    }
+    // TODO Make this function change languages
     getMangaShareUrl(mangaId) {
-        return `${this.baseUrl}/${mangaId}`;
+        return `${WEBTOONS_DOMAIN}/en/${mangaId}`;
     }
     getMangaDetails(mangaId) {
         return __awaiter(this, void 0, void 0, function* () {
+            const lang = yield (0, WebtoonsSettings_1.getLanguages)(this.stateManager);
             const request = createRequestObject({
-                url: `https://m.webtoons.com/${this.langString}/${mangaId}`,
+                url: `https://m.webtoons.com/${lang[0]}/${mangaId}`,
                 method: 'GET',
             });
             const response = yield this.requestManager.schedule(request, 3);
@@ -434,8 +472,9 @@ class Webtoons extends paperback_extensions_common_1.Source {
     }
     getChapters(mangaId) {
         return __awaiter(this, void 0, void 0, function* () {
+            const lang = yield (0, WebtoonsSettings_1.getLanguages)(this.stateManager);
             const request = createRequestObject({
-                url: `${this.baseUrl}/${mangaId}`,
+                url: `${WEBTOONS_DOMAIN}/${lang[0]}/${mangaId}`,
                 method: 'GET',
             });
             const response = yield this.requestManager.schedule(request, 3);
@@ -445,9 +484,10 @@ class Webtoons extends paperback_extensions_common_1.Source {
     }
     getChapterDetails(mangaId, chapterId) {
         return __awaiter(this, void 0, void 0, function* () {
+            const lang = yield (0, WebtoonsSettings_1.getLanguages)(this.stateManager);
             const newId = mangaId.replace('list', `ep${chapterId}/viewer`);
             const request = createRequestObject({
-                url: `${this.baseUrl}/${newId}&episode_no=${chapterId}`,
+                url: `${WEBTOONS_DOMAIN}/${lang[0]}/${newId}&episode_no=${chapterId}`,
                 method: 'GET',
             });
             const response = yield this.requestManager.schedule(request, 3);
@@ -458,6 +498,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
     getSearchResults(query, metadata) {
         var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
+            const lang = yield (0, WebtoonsSettings_1.getLanguages)(this.stateManager);
             console.log("query is:", query);
             let page = (_a = metadata === null || metadata === void 0 ? void 0 : metadata.page) !== null && _a !== void 0 ? _a : 1;
             if (page == -1)
@@ -467,7 +508,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
             let tagSearch;
             if (query.title) {
                 request = createRequestObject({
-                    url: `${this.baseUrl}/search?keyword=${((_b = query.title) !== null && _b !== void 0 ? _b : '').replace(/ /g, '+')}&page=${page}`,
+                    url: `${WEBTOONS_DOMAIN}/${lang[0]}/search?keyword=${((_b = query.title) !== null && _b !== void 0 ? _b : '').replace(/ /g, '+')}&page=${page}`,
                     method: 'GET',
                 });
             }
@@ -478,13 +519,13 @@ class Webtoons extends paperback_extensions_common_1.Source {
                     console.log("tag search is:", tagSearch);
                 }
                 request = createRequestObject({
-                    url: `${this.baseUrl}/genre`,
+                    url: `${WEBTOONS_DOMAIN}/${lang[0]}/genre`,
                     method: 'GET',
                 });
             }
             const data = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(data.data);
-            const manga = this.parser.parseSearchResults($, this.langString, type, tagSearch !== null && tagSearch !== void 0 ? tagSearch : '');
+            const manga = this.parser.parseSearchResults($, lang[0], type, tagSearch !== null && tagSearch !== void 0 ? tagSearch : '');
             page++;
             if (manga.length < 18)
                 page = -1;
@@ -496,19 +537,21 @@ class Webtoons extends paperback_extensions_common_1.Source {
     }
     getHomePageSections(sectionCallback) {
         return __awaiter(this, void 0, void 0, function* () {
+            const lang = yield (0, WebtoonsSettings_1.getLanguages)(this.stateManager);
             const request = createRequestObject({
-                url: `${this.baseUrl}/top`,
+                url: `${WEBTOONS_DOMAIN}/${lang[0]}/top`,
                 method: 'GET',
             });
             const response = yield this.requestManager.schedule(request, 1);
             const $ = this.cheerio.load(response.data);
-            return this.parser.parseHomeSections($, sectionCallback, this.langString, this.popularTitle, this.newTrendTitle, this.canvasTitle);
+            return this.parser.parseHomeSections($, sectionCallback, lang[0], this.popularTitle, this.newTrendTitle, this.canvasTitle);
         });
     }
     getTags() {
         return __awaiter(this, void 0, void 0, function* () {
+            const lang = yield (0, WebtoonsSettings_1.getLanguages)(this.stateManager);
             const request = createRequestObject({
-                url: `${this.baseUrl}/genre`,
+                url: `${WEBTOONS_DOMAIN}/${lang[0]}/genre`,
                 method: 'GET',
             });
             const response = yield this.requestManager.schedule(request, 3);
@@ -519,7 +562,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
 }
 exports.Webtoons = Webtoons;
 
-},{"./WebtoonsParser":49,"paperback-extensions-common":5}],49:[function(require,module,exports){
+},{"./WebtoonsParser":49,"./WebtoonsSettings":50,"paperback-extensions-common":5}],49:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Parser = void 0;
@@ -716,43 +759,131 @@ exports.Parser = Parser;
 
 },{"paperback-extensions-common":5}],50:[function(require,module,exports){
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.en = exports.enInfo = exports.WEBTOONS_EN_DOMAIN = void 0;
-const paperback_extensions_common_1 = require("paperback-extensions-common");
-const Webtoons_1 = require("../Webtoons");
-exports.WEBTOONS_EN_DOMAIN = 'https://www.webtoons.com/en';
-exports.enInfo = {
-    version: (0, Webtoons_1.getExportVersion)('0.0.0'),
-    name: 'English Webtoons',
-    description: 'Extension that pulls manga from the English version of Webtoons.',
-    author: 'btylerh7',
-    authorWebsite: 'http://github.com/btylerh7',
-    icon: 'logo.png',
-    contentRating: paperback_extensions_common_1.ContentRating.EVERYONE,
-    websiteBaseURL: exports.WEBTOONS_EN_DOMAIN,
-    sourceTags: [
-        {
-            text: 'English',
-            type: paperback_extensions_common_1.TagType.GREY,
-        },
-        {
-            text: 'In Development',
-            type: paperback_extensions_common_1.TagType.YELLOW
-        }
-    ],
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
-class en extends Webtoons_1.Webtoons {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.contentSettings = exports.getLanguages = exports.WTLanguages = void 0;
+class WTLanguagesClass {
     constructor() {
-        super(...arguments);
-        this.baseUrl = exports.WEBTOONS_EN_DOMAIN;
-        this.languageCode = paperback_extensions_common_1.LanguageCode.ENGLISH;
-        this.langString = 'en';
-        this.popularTitle = 'Top Originals';
-        this.newTrendTitle = 'New and Trending';
-        this.canvasTitle = 'Top Canvas';
+        this.Languages = [
+            {
+                // German
+                name: 'Deutsch',
+                WTCode: 'de',
+                PBCode: 'de'
+            },
+            {
+                // English
+                name: 'English',
+                WTCode: 'en',
+                PBCode: 'gb',
+                default: true
+            },
+            {
+                // Spanish
+                name: 'Español',
+                WTCode: 'es',
+                PBCode: 'es'
+            },
+            {
+                // French
+                name: 'Français',
+                WTCode: 'fr',
+                PBCode: 'fr'
+            },
+            {
+                // Indonesian
+                name: 'Indonesia',
+                WTCode: 'id',
+                PBCode: 'id'
+            },
+            {
+                // Thai
+                name: 'ไทย',
+                WTCode: 'th',
+                PBCode: 'th'
+            },
+            {
+                // Chinese (Traditional)
+                name: '中文 (繁體字)',
+                WTCode: 'zh-hant',
+                PBCode: 'hk'
+            },
+        ];
+        // Sorts the languages based on name
+        this.Languages = this.Languages.sort((a, b) => a.name > b.name ? 1 : -1);
+    }
+    getWTCodeList() {
+        return this.Languages.map(Language => Language.WTCode);
+    }
+    getName(WTCode) {
+        var _a, _b;
+        return (_b = (_a = this.Languages.filter(Language => Language.WTCode == WTCode)[0]) === null || _a === void 0 ? void 0 : _a.name) !== null && _b !== void 0 ? _b : 'Unknown';
+    }
+    getPBCode(WTCode) {
+        var _a, _b;
+        return (_b = (_a = this.Languages.filter(Language => Language.WTCode == WTCode)[0]) === null || _a === void 0 ? void 0 : _a.PBCode) !== null && _b !== void 0 ? _b : '_unknown';
+    }
+    getDefault() {
+        return this.Languages.filter(Language => Language.default).map(Language => Language.WTCode);
     }
 }
-exports.en = en;
+exports.WTLanguages = new WTLanguagesClass();
+const getLanguages = (stateManager) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    return (_a = (yield stateManager.retrieve('language'))) !== null && _a !== void 0 ? _a : exports.WTLanguages.getDefault();
+});
+exports.getLanguages = getLanguages;
+const contentSettings = (stateManager) => {
+    return createNavigationButton({
+        id: 'content_settings',
+        value: '',
+        label: 'Content Settings',
+        form: createForm({
+            onSubmit: (values) => __awaiter(void 0, void 0, void 0, function* () {
+                return Promise.all([
+                    stateManager.store('language', values.language),
+                ]).then();
+            }),
+            validate: () => {
+                return Promise.resolve(true);
+            },
+            sections: () => {
+                return Promise.resolve([
+                    createSection({
+                        id: 'content',
+                        footer: 'Please choose the language that you would like to view Webtoons in.',
+                        rows: () => {
+                            return Promise.all([
+                                (0, exports.getLanguages)(stateManager),
+                            ]).then((values) => __awaiter(void 0, void 0, void 0, function* () {
+                                return [
+                                    createSelect({
+                                        id: 'language',
+                                        label: 'Language',
+                                        options: exports.WTLanguages.getWTCodeList(),
+                                        displayLabel: option => exports.WTLanguages.getName(option),
+                                        value: values[0],
+                                        allowsMultiselect: false,
+                                        minimumOptionCount: 1,
+                                    }),
+                                ];
+                            }));
+                        }
+                    })
+                ]);
+            }
+        })
+    });
+};
+exports.contentSettings = contentSettings;
 
-},{"../Webtoons":48,"paperback-extensions-common":5}]},{},[50])(50)
+},{}]},{},[48])(48)
 });
