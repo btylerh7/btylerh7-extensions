@@ -393,7 +393,7 @@ const WebtoonsSettings_1 = require("./WebtoonsSettings");
 const WebtoonsParser_1 = require("./WebtoonsParser");
 const WEBTOONS_DOMAIN = `https://www.webtoons.com/`;
 exports.WebtoonsInfo = {
-    version: '2.0.0',
+    version: '2.1.0',
     name: 'Webtoons',
     description: 'Extension that pulls comics from Webtoons.',
     author: 'btylerh7',
@@ -415,7 +415,7 @@ exports.WebtoonsInfo = {
 class Webtoons extends paperback_extensions_common_1.Source {
     constructor() {
         super(...arguments);
-        this.languageCode = paperback_extensions_common_1.LanguageCode.ENGLISH;
+        this.languageCode = paperback_extensions_common_1.LanguageCode.ENGLISH; //TODO make these change with languages
         this.popularTitle = 'Top Originals';
         this.newTrendTitle = 'New and Trending';
         this.canvasTitle = 'Top Canvas';
@@ -471,15 +471,16 @@ class Webtoons extends paperback_extensions_common_1.Source {
         });
     }
     getChapters(mangaId) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const lang = yield (0, WebtoonsSettings_1.getLanguages)(this.stateManager);
             const request = createRequestObject({
-                url: `${WEBTOONS_DOMAIN}/${lang[0]}/${mangaId}`,
+                url: `https://m.webtoons.com/${lang[0]}/${mangaId}`,
                 method: 'GET',
             });
             const response = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(response.data);
-            return this.parser.parseChapters($, mangaId, this.languageCode);
+            return this.parser.parseChapters($, mangaId, (_a = lang[0]) !== null && _a !== void 0 ? _a : 'en');
         });
     }
     getChapterDetails(mangaId, chapterId) {
@@ -569,13 +570,13 @@ exports.Parser = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
 class Parser {
     parseMangaDetails($, mangaId) {
-        var _a, _b, _c, _d, _e;
+        var _a, _b, _c, _d, _e, _f;
         const titles = [(_b = (_a = $('.subj').text().split('\n')[0]) === null || _a === void 0 ? void 0 : _a.trim()) !== null && _b !== void 0 ? _b : ''];
         const desc = (_c = $('p.summary').text().trim()) !== null && _c !== void 0 ? _c : '';
         const image = (_d = $('.background_pic').find('img').attr('src')) !== null && _d !== void 0 ? _d : '';
-        const rating = Number($('em.grade_num').text().replace(',', '.'));
+        const rating = (_e = Number($('em.grade_num').text().replace(',', '.').trim())) !== null && _e !== void 0 ? _e : 0;
         const status = paperback_extensions_common_1.MangaStatus.ONGOING;
-        const author = (_e = $('.author > a').text().trim()) !== null && _e !== void 0 ? _e : '';
+        const author = (_f = $('.author').text().trim().split(/\r?\n/)[0]) === null || _f === void 0 ? void 0 : _f.trim();
         // The site only provides one primary tag for each series
         const label = $('.genre').text().replace(/ /g, '-').toLowerCase().trim();
         const genreId = $('.genre').text().trim();
@@ -585,28 +586,65 @@ class Parser {
             id: mangaId,
             titles,
             image,
-            rating,
             author,
             status,
+            rating,
             desc,
             tags
         });
     }
-    parseChapters($, mangaId, langCode) {
+    parseChapters($, mangaId, languageCode) {
         const chapters = [];
-        // const url = $('._episodeItem').first().find('a').attr('href')?.split('fr/')[1]?.split('/ep')[0] ${url}/ep${i}/viewer?title_no=${mangaId}&episode_no=${i}
-        const mostRecent = $('._episodeItem').first().attr('data-episode-no');
-        for (let i = Number(mostRecent); i > 0; i--) {
-            const id = i.toString();
-            const chapNum = i;
+        const langCode = this.parseLanguageCode(languageCode);
+        for (const chapter of $('#_episodeList').find('li').toArray()) {
+            const id = $(chapter).attr('data-episode-no');
+            const chapNum = Number(id);
+            const name = $(chapter).find('.sub_title').find('span').first().text().trim();
+            const time = new Date($(chapter).find('.date').text().trim());
+            // console.log(name)
+            // console.log(time)
+            if (!id)
+                continue;
             chapters.push(createChapter({
                 id,
                 mangaId,
-                chapNum: Number(chapNum),
-                langCode
+                chapNum,
+                langCode,
+                name,
+                time
             }));
         }
+        // const mostRecent = $('._episodeItem').first().attr('data-episode-no')
+        // for (let i=Number(mostRecent);i > 0; i-- ){
+        //     const id = i.toString()
+        //     const chapNum = i
+        //     chapters.push(
+        //         createChapter({
+        //             id,
+        //             mangaId,
+        //             chapNum: Number(chapNum),
+        //             langCode
+        //         })
+        //     )
+        // }
         return chapters;
+    }
+    parseLanguageCode(languageCode) {
+        if (languageCode == 'en')
+            return paperback_extensions_common_1.LanguageCode.ENGLISH;
+        if (languageCode == 'fr')
+            return paperback_extensions_common_1.LanguageCode.FRENCH;
+        if (languageCode == 'de')
+            return paperback_extensions_common_1.LanguageCode.GERMAN;
+        if (languageCode == 'es')
+            return paperback_extensions_common_1.LanguageCode.SPANISH;
+        if (languageCode == 'ti')
+            return paperback_extensions_common_1.LanguageCode.THAI;
+        if (languageCode == 'id')
+            return paperback_extensions_common_1.LanguageCode.INDONESIAN;
+        if (languageCode == 'zh-hant')
+            return paperback_extensions_common_1.LanguageCode.CHINEESE;
+        return paperback_extensions_common_1.LanguageCode.UNKNOWN;
     }
     parseChapterDetails($, mangaId, id) {
         var _a, _b, _c;
