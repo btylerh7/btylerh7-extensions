@@ -393,7 +393,7 @@ const WebtoonsSettings_1 = require("./WebtoonsSettings");
 const WebtoonsParser_1 = require("./WebtoonsParser");
 const WEBTOONS_DOMAIN = `https://www.webtoons.com/`;
 exports.WebtoonsInfo = {
-    version: '2.1.0',
+    version: '2.1.1',
     name: 'Webtoons',
     description: 'Extension that pulls comics from Webtoons.',
     author: 'btylerh7',
@@ -406,16 +406,11 @@ exports.WebtoonsInfo = {
             text: 'Multi-Language',
             type: paperback_extensions_common_1.TagType.GREY,
         },
-        {
-            text: 'In Development',
-            type: paperback_extensions_common_1.TagType.YELLOW
-        }
     ],
 };
 class Webtoons extends paperback_extensions_common_1.Source {
     constructor() {
         super(...arguments);
-        this.languageCode = paperback_extensions_common_1.LanguageCode.ENGLISH; //TODO make these change with languages
         this.popularTitle = 'Top Originals';
         this.newTrendTitle = 'New and Trending';
         this.canvasTitle = 'Top Canvas';
