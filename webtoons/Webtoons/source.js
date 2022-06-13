@@ -395,7 +395,7 @@ const WEBTOONS_DOMAIN = 'https://www.webtoons.com/';
 const WEBTOONS_MOBILE_DOMAIN = 'https://m.webtoons.com';
 const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
 exports.WebtoonsInfo = {
-    version: '2.2.0',
+    version: '2.2.1',
     name: 'Webtoons',
     description: 'Extension that pulls comics from Webtoons.',
     author: 'btylerh7',
@@ -413,6 +413,13 @@ exports.WebtoonsInfo = {
 class Webtoons extends paperback_extensions_common_1.Source {
     constructor() {
         super(...arguments);
+        this.cookies = [
+            createCookie({
+                name: 'pagGDPR',
+                value: 'true',
+                domain: ".webtoons.com"
+            })
+        ];
         this.parser = new WebtoonsParser_1.Parser();
         this.stateManager = createSourceStateManager({});
         this.requestManager = createRequestManager({
