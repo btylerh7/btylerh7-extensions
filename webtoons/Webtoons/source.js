@@ -641,8 +641,6 @@ class Parser {
     parseSearchResults($, langString, type, tagSearch) {
         var _a, _b, _c, _d, _e, _f, _g;
         const results = [];
-        console.log("type:", type);
-        console.log("TagSearch: ", tagSearch);
         if (type == 'title') {
             for (const result of $('.card_lst').find('li').toArray()) {
                 const genre = $(result).find('span').text().toLowerCase().replace('like', '').trim();
@@ -711,6 +709,7 @@ class Parser {
     }
     parseHomeSections($, sectionCallback, langString) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+        // TODO There is no canvas section on the german page
         const [popularTitle, newTrendTitle, canvasTitle] = this.parseHomeSectionTitles(langString);
         const popularSection = createHomeSection({ id: '0', title: popularTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
         const newTrendSection = createHomeSection({ id: '1', title: newTrendTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
