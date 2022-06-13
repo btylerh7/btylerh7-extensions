@@ -431,7 +431,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
                     const lang = yield (0, WebtoonsSettings_1.getLanguages)(this.stateManager);
                     request.headers = Object.assign(Object.assign({}, ((_a = request.headers) !== null && _a !== void 0 ? _a : {})), {
                         'user-agent': userAgent,
-                        'referer': `${WEBTOONS_DOMAIN}/${lang[0]}`
+                        'referer': `${WEBTOONS_DOMAIN}/${lang[0]}`,
                     });
                     return request;
                 }),
@@ -464,6 +464,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: `${WEBTOONS_MOBILE_DOMAIN}/${lang[0]}/${mangaId}`,
                 method: 'GET',
+                cookies: this.cookies
             });
             const response = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(response.data);
@@ -477,6 +478,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: `${WEBTOONS_MOBILE_DOMAIN}/${lang[0]}/${mangaId}`,
                 method: 'GET',
+                cookies: this.cookies
             });
             const response = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(response.data);
@@ -510,6 +512,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
                 request = createRequestObject({
                     url: `${WEBTOONS_DOMAIN}/${lang[0]}/search?keyword=${((_b = query.title) !== null && _b !== void 0 ? _b : '').replace(/ /g, '+')}&page=${page}`,
                     method: 'GET',
+                    cookies: this.cookies
                 });
             }
             else {
@@ -520,6 +523,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
                 request = createRequestObject({
                     url: `${WEBTOONS_DOMAIN}/${lang[0]}/genre`,
                     method: 'GET',
+                    cookies: this.cookies
                 });
             }
             const data = yield this.requestManager.schedule(request, 3);
@@ -540,6 +544,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: `${WEBTOONS_DOMAIN}/${lang[0]}/top`,
                 method: 'GET',
+                cookies: this.cookies
             });
             const response = yield this.requestManager.schedule(request, 1);
             const $ = this.cheerio.load(response.data);
@@ -552,6 +557,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
             const request = createRequestObject({
                 url: `${WEBTOONS_DOMAIN}/${lang[0]}/genre`,
                 method: 'GET',
+                cookies: this.cookies
             });
             const response = yield this.requestManager.schedule(request, 3);
             const $ = this.cheerio.load(response.data);
