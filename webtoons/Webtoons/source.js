@@ -391,9 +391,11 @@ exports.Webtoons = exports.WebtoonsInfo = void 0;
 const paperback_extensions_common_1 = require("paperback-extensions-common");
 const WebtoonsSettings_1 = require("./WebtoonsSettings");
 const WebtoonsParser_1 = require("./WebtoonsParser");
-const WEBTOONS_DOMAIN = `https://www.webtoons.com/`;
+const WEBTOONS_DOMAIN = 'https://www.webtoons.com/';
+const WEBTOONS_MOBILE_DOMAIN = 'https://m.webtoons.com';
+const userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
 exports.WebtoonsInfo = {
-    version: '2.1.1',
+    version: '2.2.0',
     name: 'Webtoons',
     description: 'Extension that pulls comics from Webtoons.',
     author: 'btylerh7',
@@ -411,12 +413,8 @@ exports.WebtoonsInfo = {
 class Webtoons extends paperback_extensions_common_1.Source {
     constructor() {
         super(...arguments);
-        this.popularTitle = 'Top Originals';
-        this.newTrendTitle = 'New and Trending';
-        this.canvasTitle = 'Top Canvas';
-        this.stateManager = createSourceStateManager({});
-        this.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1';
         this.parser = new WebtoonsParser_1.Parser();
+        this.stateManager = createSourceStateManager({});
         this.requestManager = createRequestManager({
             requestsPerSecond: 3,
             requestTimeout: 15000,
@@ -425,7 +423,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
                     var _a;
                     const lang = yield (0, WebtoonsSettings_1.getLanguages)(this.stateManager);
                     request.headers = Object.assign(Object.assign({}, ((_a = request.headers) !== null && _a !== void 0 ? _a : {})), {
-                        'user-agent': this.userAgent,
+                        'user-agent': userAgent,
                         'referer': `${WEBTOONS_DOMAIN}/${lang[0]}`
                     });
                     return request;
@@ -457,7 +455,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
         return __awaiter(this, void 0, void 0, function* () {
             const lang = yield (0, WebtoonsSettings_1.getLanguages)(this.stateManager);
             const request = createRequestObject({
-                url: `https://m.webtoons.com/${lang[0]}/${mangaId}`,
+                url: `${WEBTOONS_MOBILE_DOMAIN}/${lang[0]}/${mangaId}`,
                 method: 'GET',
             });
             const response = yield this.requestManager.schedule(request, 3);
@@ -470,7 +468,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
         return __awaiter(this, void 0, void 0, function* () {
             const lang = yield (0, WebtoonsSettings_1.getLanguages)(this.stateManager);
             const request = createRequestObject({
-                url: `https://m.webtoons.com/${lang[0]}/${mangaId}`,
+                url: `${WEBTOONS_MOBILE_DOMAIN}/${lang[0]}/${mangaId}`,
                 method: 'GET',
             });
             const response = yield this.requestManager.schedule(request, 3);
@@ -495,7 +493,6 @@ class Webtoons extends paperback_extensions_common_1.Source {
         var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
             const lang = yield (0, WebtoonsSettings_1.getLanguages)(this.stateManager);
-            console.log("query is:", query);
             let page = (_a = metadata === null || metadata === void 0 ? void 0 : metadata.page) !== null && _a !== void 0 ? _a : 1;
             if (page == -1)
                 return createPagedResults({ results: [], metadata: { page: -1 } });
@@ -512,7 +509,6 @@ class Webtoons extends paperback_extensions_common_1.Source {
                 if (((_c = query === null || query === void 0 ? void 0 : query.includedTags) === null || _c === void 0 ? void 0 : _c.length) != 0) {
                     type = 'tag';
                     tagSearch = (_d = query.includedTags[0]) === null || _d === void 0 ? void 0 : _d.id;
-                    console.log("tag search is:", tagSearch);
                 }
                 request = createRequestObject({
                     url: `${WEBTOONS_DOMAIN}/${lang[0]}/genre`,
@@ -540,7 +536,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
             });
             const response = yield this.requestManager.schedule(request, 1);
             const $ = this.cheerio.load(response.data);
-            return this.parser.parseHomeSections($, sectionCallback, lang[0], this.popularTitle, this.newTrendTitle, this.canvasTitle);
+            return this.parser.parseHomeSections($, sectionCallback, lang[0]);
         });
     }
     getTags() {
@@ -596,8 +592,6 @@ class Parser {
             const chapNum = Number(id);
             const name = $(chapter).find('.sub_title').find('span').first().text().trim();
             const time = new Date($(chapter).find('.date').text().trim());
-            // console.log(name)
-            // console.log(time)
             if (!id)
                 continue;
             chapters.push(createChapter({
@@ -609,19 +603,6 @@ class Parser {
                 time
             }));
         }
-        // const mostRecent = $('._episodeItem').first().attr('data-episode-no')
-        // for (let i=Number(mostRecent);i > 0; i-- ){
-        //     const id = i.toString()
-        //     const chapNum = i
-        //     chapters.push(
-        //         createChapter({
-        //             id,
-        //             mangaId,
-        //             chapNum: Number(chapNum),
-        //             langCode
-        //         })
-        //     )
-        // }
         return chapters;
     }
     parseLanguageCode(languageCode) {
@@ -633,7 +614,7 @@ class Parser {
             return paperback_extensions_common_1.LanguageCode.GERMAN;
         if (languageCode == 'es')
             return paperback_extensions_common_1.LanguageCode.SPANISH;
-        if (languageCode == 'ti')
+        if (languageCode == 'th')
             return paperback_extensions_common_1.LanguageCode.THAI;
         if (languageCode == 'id')
             return paperback_extensions_common_1.LanguageCode.INDONESIAN;
@@ -712,8 +693,25 @@ class Parser {
         }
         return results;
     }
-    parseHomeSections($, sectionCallback, langString, popularTitle, newTrendTitle, canvasTitle) {
+    parseHomeSectionTitles(languageCode) {
+        let popularTitle, newTrendTitle, canvasTitle;
+        if (languageCode == 'fr')
+            return [popularTitle = 'Nouvelle Tendance', newTrendTitle = 'Le Plus Populaire', canvasTitle = 'Canvas Le Plus Populaire'];
+        if (languageCode == 'de')
+            return [popularTitle = 'Neu und Beliebt', newTrendTitle = 'Beliebte', canvasTitle = 'Top Canvas'];
+        if (languageCode == 'es')
+            return [popularTitle = 'Más Popular', newTrendTitle = 'Nuevas Tendencias', canvasTitle = 'Más Popular En Canvas'];
+        if (languageCode == 'th')
+            return [popularTitle = 'อันดับตามประเภท', newTrendTitle = 'เรื่องใหม่มาแรง', canvasTitle = 'อันดับตามประเภท'];
+        if (languageCode == 'id')
+            return [popularTitle = 'TERPOPULER BERDASARKAN GENRE', newTrendTitle = 'BARU & TRENDING', canvasTitle = 'KANVAS TERPOPULER BERDASARKAN GENRE'];
+        if (languageCode == 'zh-hant')
+            return [popularTitle = '分類排行榜', newTrendTitle = '熱門新作排行榜', canvasTitle = '投稿新星作品分類排行榜'];
+        return [popularTitle = 'Top Originals', newTrendTitle = 'New and Trending', canvasTitle = 'Top Canvas'];
+    }
+    parseHomeSections($, sectionCallback, langString) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
+        const [popularTitle, newTrendTitle, canvasTitle] = this.parseHomeSectionTitles(langString);
         const popularSection = createHomeSection({ id: '0', title: popularTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
         const newTrendSection = createHomeSection({ id: '1', title: newTrendTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
         const canvasSection = createHomeSection({ id: '2', title: canvasTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
