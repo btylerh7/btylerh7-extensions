@@ -454,7 +454,6 @@ class Webtoons extends paperback_extensions_common_1.Source {
             }));
         });
     }
-    // TODO Make this function change languages
     getMangaShareUrl(mangaId) {
         return `${WEBTOONS_DOMAIN}/en/${mangaId}`;
     }
@@ -661,6 +660,8 @@ class Parser {
                 const urlTitle = title.replace(/-|'/g, '').replace(/ /g, '-').toLowerCase();
                 const idNumber = (_a = $(result).find('a').attr('href')) === null || _a === void 0 ? void 0 : _a.split('titleNo=')[1];
                 const id = `${genre}/${urlTitle}/list?title_no=${idNumber}`;
+                if (!id)
+                    continue;
                 const image = (_b = $(result).find('img').attr('src')) !== null && _b !== void 0 ? _b : '';
                 results.push(createMangaTile({
                     id,
@@ -670,25 +671,35 @@ class Parser {
             }
         }
         if (type == 'tag') {
+            /*
+                The layout on the genre page is 'h2' > 'ul' for each genre,
+                so there will be an array of h2s and an array of uls
+            */
             const tagTitlesArray = [];
             const tagComicsArray = [];
             let index = 0;
+            // Find all genre titles on page
             for (const title of $('.card_wrap.genre').find('h2').toArray()) {
                 const tagTitle = (_c = $(title).attr('data-genre-seo')) === null || _c === void 0 ? void 0 : _c.trim();
                 if (!tagTitle)
                     continue;
                 tagTitlesArray.push(tagTitle);
             }
+            // Find corresponding list of webtoons
             for (const tagComic of $('.card_wrap.genre').find('ul.card_lst').toArray()) {
                 const comicList = $(tagComic).find('li').toArray();
-                console.log(comicList);
                 tagComicsArray.push(comicList);
             }
+            /*
+                If the tag that is searched matches any of the tags in the titles array, set that to
+               the index. For example, if the tag 'drama' is tagTitlesArray[1], then the drama webtoons
+               list will be tagComicsArray[1]
+            */
             for (let i = 0; i < tagComicsArray.length; i++) {
                 if (tagTitlesArray[i] == tagSearch)
                     index = i;
             }
-            console.log(index);
+            // Use the index to add the correct webtoons to the results
             for (const comicTile of (_d = tagComicsArray[index]) !== null && _d !== void 0 ? _d : []) {
                 const title = $(comicTile).find('.subj').text().trim();
                 const image = (_e = $(comicTile).find('img').attr('src')) !== null && _e !== void 0 ? _e : '';
@@ -722,7 +733,6 @@ class Parser {
     }
     parseHomeSections($, sectionCallback, langString) {
         var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m;
-        // TODO There is no canvas section on the german page
         const [popularTitle, newTrendTitle, canvasTitle] = this.parseHomeSectionTitles(langString);
         const popularSection = createHomeSection({ id: '0', title: popularTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
         const newTrendSection = createHomeSection({ id: '1', title: newTrendTitle, type: paperback_extensions_common_1.HomeSectionType.singleRowNormal, view_more: false, });
@@ -737,6 +747,8 @@ class Parser {
             if (mangaId.startsWith('top?rankingGenre'))
                 continue;
             if (mangaId.startsWith('challenge'))
+                continue;
+            if (!mangaId)
                 continue;
             const image = (_c = $(popularComic).find('img').attr('src')) !== null && _c !== void 0 ? _c : '';
             const title = (_d = $(popularComic).find('.subj').text().trim()) !== null && _d !== void 0 ? _d : '';
@@ -758,6 +770,8 @@ class Parser {
             const title = (_h = $(newTrendComic).find('.subj').text().trim()) !== null && _h !== void 0 ? _h : '';
             if (mangaId.startsWith('challenge'))
                 continue;
+            if (!mangaId)
+                continue;
             newTrend.push(createMangaTile({
                 id: mangaId,
                 image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
@@ -776,6 +790,8 @@ class Parser {
             const title = (_m = $(canvasComic).find('.subj').text().trim()) !== null && _m !== void 0 ? _m : '';
             if (mangaId.startsWith('top?rankingGenre'))
                 continue;
+            if (!mangaId)
+                continue;
             canvas.push(createMangaTile({
                 id: mangaId,
                 image: image !== null && image !== void 0 ? image : 'https://i.imgur.com/GYUxEX8.png',
@@ -792,6 +808,8 @@ class Parser {
         const genres = [];
         for (const tagHeader of $('div.card_wrap.genre').find('h2').toArray()) {
             const id = (_b = (_a = $(tagHeader).attr('data-genre-seo')) === null || _a === void 0 ? void 0 : _a.trim()) !== null && _b !== void 0 ? _b : '';
+            if (!id)
+                continue;
             const label = $(tagHeader).text().trim();
             genres.push(createTag({ label: label, id: id }));
         }
