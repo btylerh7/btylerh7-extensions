@@ -417,7 +417,7 @@ class Webtoons extends paperback_extensions_common_1.Source {
             createCookie({
                 name: 'pagGDPR',
                 value: 'true',
-                domain: ".webtoons.com"
+                domain: '.webtoons.com'
             })
         ];
         this.parser = new WebtoonsParser_1.Parser();
