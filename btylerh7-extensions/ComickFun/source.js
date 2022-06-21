@@ -472,6 +472,64 @@ class ComickFun extends paperback_extensions_common_1.Source {
             });
         });
     }
+    getHomePageSections(sectionCallback) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const sections = [
+                {
+                    request: createRequestObject({
+                        url: `${exports.CFDOMAIN}/top`,
+                        method: 'GET'
+                    }),
+                    section: createHomeSection({
+                        id: 'top',
+                        title: 'Top Manga',
+                        type: paperback_extensions_common_1.HomeSectionType.singleRowNormal,
+                        view_more: false
+                    }),
+                    selector: true
+                },
+                {
+                    request: createRequestObject({
+                        url: `${exports.CFDOMAIN}/chapter?lang=en&page=1&order=hot&tachiyomi=true`,
+                        method: 'GET'
+                    }),
+                    section: createHomeSection({
+                        id: 'hot',
+                        title: 'Hot Updates',
+                        type: paperback_extensions_common_1.HomeSectionType.singleRowNormal,
+                        view_more: false
+                    }),
+                    selector: false
+                },
+                {
+                    request: createRequestObject({
+                        url: `${exports.CFDOMAIN}/chapter?lang=en&page=1&order=new&tachiyomi=true`,
+                        method: 'GET'
+                    }),
+                    section: createHomeSection({
+                        id: 'new',
+                        title: 'New Manga',
+                        type: paperback_extensions_common_1.HomeSectionType.singleRowNormal,
+                        view_more: false,
+                    }),
+                    selector: false
+                }
+            ];
+            const promises = [];
+            for (const section of sections) {
+                // Let the app load empty sections
+                sectionCallback(section.section);
+                // Get the section data
+                promises.push(this.requestManager.schedule(section.request, 1).then(response => {
+                    const json = (typeof response.data) === 'string' ? JSON.parse(response.data) : response.data;
+                    section.section.items = this.parser.parseHomeSection(json, section.selector);
+                    sectionCallback(section.section);
+                }));
+            }
+            // Make sure the function completes
+            yield Promise.all(promises);
+        });
+    }
     getNumericalId(mangaId) {
         return __awaiter(this, void 0, void 0, function* () {
             const request = createRequestObject({
@@ -496,7 +554,7 @@ class Parser {
         const title = mangaDetails.comic.title;
         const status = mangaDetails.comic.status;
         const hentai = mangaDetails.comic.hentai;
-        const desc = mangaDetails.comic.desc;
+        const desc = mangaDetails.comic.desc.split('<br')[0];
         const rating = Number(mangaDetails.comic.bayesian_rating);
         const image = mangaDetails.comic.md_covers[0].gpurl;
         return createManga({
@@ -516,7 +574,7 @@ class Parser {
             const id = chapter.hid;
             const chapNum = Number(chapter.chap);
             const langCode = paperback_extensions_common_1.LanguageCode.ENGLISH;
-            if (!id || !name)
+            if (!id)
                 continue;
             chapters.push(createChapter({
                 id,
@@ -549,6 +607,33 @@ class Parser {
             const id = manga.slug;
             const title = manga.title;
             const image = manga.md_covers[0].gpurl;
+            results.push(createMangaTile({
+                id,
+                image,
+                title: createIconText({
+                    text: title
+                })
+            }));
+        }
+        return results;
+    }
+    parseHomeSection(response, selector) {
+        const results = [];
+        let id, title, image;
+        const data = selector ? response.rank : response;
+        for (const manga of data) {
+            if (selector) {
+                id = manga.slug;
+                title = manga.slug;
+                image = manga.md_covers[0].gpurl;
+            }
+            else {
+                id = manga.md_comics.slug;
+                title = manga.md_comics.title;
+                image = manga.md_comics.md_covers[0].gpurl;
+            }
+            if (!id)
+                continue;
             results.push(createMangaTile({
                 id,
                 image,
