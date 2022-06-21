@@ -2,6 +2,8 @@ import {
     Chapter,
     ChapterDetails,
     ContentRating,
+    HomeSection,
+    HomeSectionType,
     Manga,
     PagedResults,
     SearchRequest,
@@ -83,6 +85,65 @@ export class ComickFun extends Source {
             results: manga,
             metadata: { page: page },
         })
+    }
+    override async getHomePageSections(sectionCallback: (section: HomeSection) => void): Promise<void> {
+        const sections = [
+            {
+                request: createRequestObject({
+                    url: `${CFDOMAIN}/top`,
+                    method: 'GET'
+                }),
+                section: createHomeSection({
+                    id: 'top',
+                    title: 'Top Manga',
+                    type: HomeSectionType.singleRowNormal,
+                    view_more: false
+                }),
+                selector: true
+            },
+            {
+                request: createRequestObject({
+                    url: `${CFDOMAIN}/chapter?lang=en&page=1&order=hot&tachiyomi=true`,
+                    method: 'GET'
+                }),
+                section: createHomeSection({
+                    id: 'hot',
+                    title: 'Hot Updates',
+                    type: HomeSectionType.singleRowNormal,
+                    view_more: false
+                }),
+                selector: false
+            },
+            {
+                request: createRequestObject({
+                    url: `${CFDOMAIN}/chapter?lang=en&page=1&order=new&tachiyomi=true`,
+                    method: 'GET'
+                }),
+                section: createHomeSection({
+                    id: 'new',
+                    title: 'New Manga',
+                    type: HomeSectionType.singleRowNormal,
+                    view_more: false,
+                }),
+                selector: false
+            }
+        ]
+        const promises: Promise<void>[] = []
+        for (const section of sections) {
+            // Let the app load empty sections
+            sectionCallback(section.section)
+
+            // Get the section data
+            promises.push(
+                this.requestManager.schedule(section.request, 1).then(response => {
+                    const json = (typeof response.data) === 'string' ? JSON.parse(response.data) : response.data
+                    section.section.items = this.parser.parseHomeSection(json, section.selector)
+                    sectionCallback(section.section)
+                }),
+            )
+        }
+        // Make sure the function completes
+        await Promise.all(promises)
     }
     async getNumericalId(mangaId: string): Promise<string>{
         const request = createRequestObject({

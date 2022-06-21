@@ -30,7 +30,6 @@ describe('Comick Fun Tests', () => {
         // Validate that the fields are filled
 
         const data = details
-        console.log(data)
         expect(data.image, 'Missing Image').to.be.not.empty
         expect(data.status, 'Missing Status').to.exist
         expect(data.desc, 'Missing Description').to.be.not.empty
@@ -83,12 +82,12 @@ describe('Comick Fun Tests', () => {
         expect(result?.subtitleText, 'No subtitle text').to.be.not.null
     })
 
-    // it('Testing Home-Page aquisition', async () => {
-    //     const homePages = await wrapper.getHomePageSections(source)
-    //     expect(homePages, 'No response from server').to.exist
-    //     expect(homePages[0]?.items, 'No items present').to.exist
-    //     // console.log(homePages[1]?.items)
-    // })
+    it('Testing Home-Page aquisition', async () => {
+        const homePages = await wrapper.getHomePageSections(source)
+        expect(homePages, 'No response from server').to.exist
+        expect(homePages[1]?.items, 'No items present').to.exist
+        // console.log(homePages[1]?.items)
+    })
 
     // it('Testing Notifications', async () => {
     //   const updates = await wrapper.filterUpdatedManga(

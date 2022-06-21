@@ -11,7 +11,7 @@ export class Parser {
         const title = mangaDetails.comic.title
         const status = mangaDetails.comic.status
         const hentai = mangaDetails.comic.hentai
-        const desc = mangaDetails.comic.desc
+        const desc = mangaDetails.comic.desc.split('<br')[0]
         const rating = Number(mangaDetails.comic.bayesian_rating)
         const image = mangaDetails.comic.md_covers[0].gpurl
 
@@ -32,7 +32,7 @@ export class Parser {
             const id = chapter.hid
             const chapNum = Number(chapter.chap)
             const langCode = LanguageCode.ENGLISH
-            if(!id || !name) continue
+            if(!id) continue
 
             chapters.push(
                 createChapter({
@@ -66,6 +66,33 @@ export class Parser {
             const id = manga.slug
             const title = manga.title
             const image = manga.md_covers[0].gpurl
+            results.push(
+                createMangaTile({
+                    id,
+                    image,
+                    title: createIconText({
+                        text: title
+                    })
+                })
+            )
+        }
+        return results
+    }
+    parseHomeSection(response: any, selector: boolean): MangaTile[]{
+        const results = []
+        let id, title, image
+        const data = selector ? response.rank : response
+        for (const manga of data) {
+            if(selector) {
+                id = manga.slug
+                title = manga.slug
+                image = manga.md_covers[0].gpurl
+            } else {
+                id = manga.md_comics.slug
+                title = manga.md_comics.title
+                image = manga.md_comics.md_covers[0].gpurl
+            }
+            if (!id) continue
             results.push(
                 createMangaTile({
                     id,
