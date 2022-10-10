@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "description": "Sources extension for Paperback by btylerh7",
   "main": "index.js",
-  "baseURL": "https://btylerh7.github.io/btylerh7-fextensions",
+  "baseURL": "https://btylerh7.github.io/btylerh7-extensions",
   "scripts": {
     "bundle": "paperback bundle",
     "serve": "paperback serve",
