@@ -593,7 +593,7 @@ class Parser {
         const chapters = [];
         for (let chapter of $('table.table').find('tr').toArray()) {
             const title = (_c = (_b = (_a = $('a', chapter).attr('title')) === null || _a === void 0 ? void 0 : _a.split('【')[1]) === null || _b === void 0 ? void 0 : _b.replace('】', '')) !== null && _c !== void 0 ? _c : '';
-            const id = (_d = $('a', chapter).attr('href')) === null || _d === void 0 ? void 0 : _d.replace(/\/chapters\//, '').replace('/', '');
+            const id = (_d = $('a', chapter).attr('href')) === null || _d === void 0 ? void 0 : _d.split('chapters/')[1].replace('/', '');
             const chapNum = Number(title === null || title === void 0 ? void 0 : title.replace(/第|話/g, ''));
             if (!id)
                 continue;
