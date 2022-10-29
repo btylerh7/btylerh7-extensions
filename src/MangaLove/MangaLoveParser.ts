@@ -38,7 +38,7 @@ export class Parser {
 
         for (let chapter of $('table.table').find('tr').toArray()) {
             const title = $('a', chapter).attr('title')?.split('【')[1]?.replace('】', '') ?? ''
-            const id = $('a', chapter).attr('href')?.replace(/\/chapters\//, '').replace('/', '')
+            const id = $('a', chapter).attr('href')?.split('chapters/')[1].replace('/', '')
             const chapNum = Number(title?.replace(/第|話/g, ''))
             if(!id) continue
 
